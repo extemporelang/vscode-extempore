@@ -15,12 +15,25 @@
     ],
     "main": "./out/extension",
     "contributes": {
-        "commands": [
-            {
+        "languages": [{
+            "id": "extempore",
+            "aliases": ["Extempore", "extempore"],
+            "extensions": [".xtm"],
+            "configuration": "./language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "extempore",
+            "scopeName": "source.extempore",
+            "path": "./syntaxes/extempore.tmLanguage.json"
+        }],
+        "snippets": [{
+            "langauge": "Extempore",
+            "path": "./snippets/extempore.json"
+        }],
+        "commands": [{
                 "command": "extension.sayHello",
                 "title": "Hello World"
-            }
-        ]
+        }]
     },
     "scripts": {
         "vscode:prepublish": "npm run compile",

@@ -1,0 +1,11 @@
+{
+    "Insert XTLang function": {
+        "prefix": "bind-func",
+        "body": [
+            "(bind-func ${first}",
+            "   (lambda (x)",
+            "       (* x 3)))"
+        ],
+        "description": "Insert XTLang function"
+    }
+}
