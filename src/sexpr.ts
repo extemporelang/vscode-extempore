@@ -6,7 +6,6 @@ interface SexprResult {
     end: number;
     openings: number;
     closings: number;
-    //name: string;
 }
 
 let sexprFindMatchingClose = (str: string, skipcnt: number, pos: number): number => {
@@ -46,15 +45,6 @@ let sexprName = (str: string, sexpr: SexprResult): string => {
     return name[0];
 }
 
-/*
-let sexprArgPosition = (strin: string, sexpr: SexprResult): number => {
-    if (sexpr.start < 0) return 0;
-    let exprcontents = strin.substring(sexpr.start + 1, (sexpr.end < 0) ? strin.length : sexpr.end);
-    let name = exprcontents.match("^\\S*\\s*");
-    return name[0].length+1;
-}
-*/
-
 let sexprString = (str: string, sexpr: SexprResult): string => {
     if ((sexpr.start === -1) && (sexpr.end === -1)) return "";
     return str.substring(
@@ -91,7 +81,6 @@ let inSexpr = (strin: string, pos: number): SexprResult => {
         }
         let open = str.indexOf("(", pos);
         if (open < 0) open = strin.length;
-        //console.log("TMPPOS: " + tmppos + " open:" + open + "  close:" + close);        
         if (close < open) {
             numclosed++;
             if (numopen === numclosed) {
@@ -102,7 +91,7 @@ let inSexpr = (strin: string, pos: number): SexprResult => {
         }
         else {
             numopen++;
-            pos = open + 1;// (open < close) ? open : close;
+            pos = open + 1;
         }
     }
     return { start: start, end: end, openings: numopen, closings: numclosed };
@@ -111,7 +100,6 @@ let inSexpr = (strin: string, pos: number): SexprResult => {
 
 let findLastOpenParen = (strin: string): number => {
     let sexpr = inSexpr(strin, strin.length - 1);
-    //console.log('s1: ' + JSON.stringify(sexpr), ' name: \"' + sexprName(strin, sexpr) + '\"');// strin.substring(sexpr.start, sexpr.end));
     return sexpr.start;
 }
 
@@ -148,22 +136,15 @@ let sexprIndent = (strin: string, sexpr: SexprResult): number => {
     let indent = lineIndentAmount(strin, sexpr);    
     if (shortIndent) return indent + 2;
     return sexprArgPos(strin,sexpr);
-    /*
-        
-    if (name.startsWith("(")) return indent + 1;
-    let argpos = sexprArgPosition(strin, sexpr);
-    console.log("argspos:" + argpos);
-    return indent + argpos;
-    */
 }
 
 export let xtmIndent = (strin: string): number => {
     let sexpr = inSexpr(strin, strin.length - 1);
     let indent = sexprIndent(strin, sexpr);
     let name = sexprName(strin, sexpr);
-    console.log("sexpr: " + JSON.stringify(sexpr));
-    console.log("name: " + name + "  indent: " + indent);
-    console.log("sexp-str: " + sexprString(strin, sexpr));
+    //console.log("sexpr: " + JSON.stringify(sexpr));
+    //console.log("name: " + name + "  indent: " + indent);
+    //console.log("sexp-str: " + sexprString(strin, sexpr));
     return indent;
 }
 
