@@ -37,7 +37,7 @@
 		"keywords": {
 			"patterns": [{
 				"name": "keyword.control.extempore",
-				"match": "\\b(begin|cond|else|or|and|void|lambda|define|if|pref-ptr|aref-ptr|tref-ptr|pfill|tfill|aref|tref|pref|aset|tset|pset|set|while|dotimes|let|bind-func|bind-lib|bind-val|bind-type)\\b"
+				"match": "\\b(alloc|zalloc|halloc|salloc|letz|beginz|vector|vector_ref|tuple|tuple_ref|array|array_ref|begin|cond|else|or|and|void|lambda|define|if|pref-ptr|aref-ptr|tref-ptr|pfill|tfill|aref|tref|pref|aset|tset|pset|set|while|dotimes|let|bind-func|bind-lib|bind-val|bind-type)\\b"
 			}]
 		},
 		"operators": {

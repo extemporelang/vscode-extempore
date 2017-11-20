@@ -20,6 +20,14 @@
         ["<", ">"],
         ["\"", "\""]
     ],
+    /*
+    "indentationRules": {
+        "increaseIndentPattern": "\\(([^()]|(?R))*",
+        "decreaseIndentPattern": "\\)"
+        //"indentNextLinePattern": "",
+        //"unIndentedLinePattern": ""
+    },
+    */
     // symbols that that can be used to surround a selection
     "surroundingPairs": [
         ["{", "}"],

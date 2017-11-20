@@ -1,11 +1,23 @@
 {
     "Insert XTLang function": {
-        "prefix": "bind-func",
+        "prefix": "bf",
         "body": [
-            "(bind-func ${first}",
-            "   (lambda (x)",
-            "       (* x 3)))"
+            "(bind-func ${1:name}",
+            "  (lambda ()",
+            "    $0))"
         ],
         "description": "Insert XTLang function"
+    },
+    "Temporal Recursion": {
+        "prefix": "tr",
+        "body": [
+            "(define ${1:name}",
+            "  (lambda (beat dur)",
+            "    $0",
+            "    (callback (*metro* (+ beat (* .5 dur))) '$1 (+ beat dur) dur)))",
+            " ",
+            "($1 (*metro* 'get-beat 4) 1/4)"
+        ],
+        "description": "Temporal Recursion"
     }
 }

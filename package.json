@@ -8,39 +8,93 @@
         "vscode": "^1.18.0"
     },
     "categories": [
-        "Other"
+        "Other"    
     ],
     "activationEvents": [
-        "onCommand:extension.sayHello"
+        "onCommand:extension.sayHello",
+        "onCommand:extension.xtmsend", 
+        "onCommand:extension.xtmconnect",       
+        "onLanguage:extempore"
     ],
     "main": "./out/extension",
     "contributes": {
-        "languages": [{
-            "id": "extempore",
-            "aliases": ["Extempore", "extempore"],
-            "extensions": [".xtm"],
-            "configuration": "./language-configuration.json"
-        }],
-        "grammars": [{
-            "language": "extempore",
-            "scopeName": "source.extempore",
-            "path": "./syntaxes/extempore.tmLanguage.json"
-        }],
+        "languages": [
+            {
+                "id": "extempore",
+                "aliases": [
+                    "Extempore",
+                    "extempore"
+                ],
+                "extensions": [
+                    ".xtm"
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "extempore",
+                "scopeName": "source.extempore",
+                "path": "./syntaxes/extempore.tmLanguage.json"
+            }
+        ],
+        "keybindings": [
+            {   
+                "key": "alt+e alt+c", 
+                "command": "extension.xtmconnect",
+                "when": "editorTextFocus" 
+            },
+            {   
+                "key": "alt+e alt+d", 
+                "command": "extension.xtmdisconnect",
+                "when": "editorTextFocus" 
+            },
+            {   
+                "key": "alt+e alt+s", 
+                "command": "extension.xtmsend",
+                "when": "editorTextFocus" 
+            },
+            {   
+                "key": "alt+e alt+e", 
+                "command": "extension.xtmsend",
+                "when": "editorTextFocus" 
+            }
+        ],
         "snippets": [{
-            "langauge": "Extempore",
-            "path": "./snippets/extempore.json"
-        }],
-        "commands": [{
+                "language": "extempore",
+                "path": "./snippets/extempore.json"
+            }
+        ],
+        "commands": [
+            {
                 "command": "extension.sayHello",
                 "title": "Hello World"
-        }]
+            },
+            {
+                "command": "extension.xtmsend",
+                "title": "Extempore Send"
+            },
+            {
+                "command": "extension.xtmconnect",
+                "title": "Extempore Connect"
+            },
+            {
+                "command": "extension.xtmdisconnect",
+                "title": "Extempore Disconnect"
+            }
+
+        ]
     },
     "scripts": {
         "vscode:prepublish": "npm run compile",
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
+        "devcompile": "tsc && node out/devtest.js",
+        "devtest": "nodemon -e ts --exec \"npm run devcompile\"",
         "postinstall": "node ./node_modules/vscode/bin/install",
         "test": "npm run compile && node ./node_modules/vscode/bin/test"
+    },
+    "dependencies": {
     },
     "devDependencies": {
         "typescript": "^2.6.1",
