@@ -8,6 +8,13 @@ import { xtmIndent, xtmInSexpr, xtmSexprToString } from './sexpr';
 
 let socket = null;
 
+let CRLF2LF = (strin: string): string => {
+    //console.log("CRLF_IN:\n", strin);
+    let strout = strin.replace(/(\r\n|\n|\r)/gm, "\x0A");
+    //console.log("LF_OUT:\n", strout);
+    return strout;
+}
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -21,12 +28,14 @@ export function activate(context: vscode.ExtensionContext) {
         // The code you place here will be executed every time your command is executed
         let document = vscode.window.activeTextEditor.document;
         let txtstr = document.getText();
+        // make sure we are LF ends for Extempore comms
         let pos = vscode.window.activeTextEditor.selection.active;
         let sexpr = xtmInSexpr(txtstr, document.offsetAt(pos) - 1);
         let sexprstr = xtmSexprToString(txtstr, sexpr);
-        //console.log("SEXPR AT: " + JSON.stringify(sexpr) + "\n'" + sexprstr + "'");
-        let sexp2 = sexprstr.concat("\r\n");
-        socket.write(sexp2);
+        console.log("send-data: " + JSON.stringify(sexpr) + "\n'" + sexprstr + "'");
+        let unixstr = CRLF2LF(sexprstr);
+        let commsstr = unixstr.concat("\r\n");
+        socket.write(commsstr);
     });
     context.subscriptions.push(sendSexprDisposable);
 
@@ -38,7 +47,7 @@ export function activate(context: vscode.ExtensionContext) {
             //console.log("Connected to Extempore!");
         });
         socket.on('data', (data) => {
-            console.log("data-in: " + JSON.stringify(data));
+            console.log("receive-data: " + JSON.stringify(data));
             // not doing anyting with received data yet
         });
         socket.on('close', () => {

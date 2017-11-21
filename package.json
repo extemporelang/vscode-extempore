@@ -8,12 +8,12 @@
         "vscode": "^1.18.0"
     },
     "categories": [
-        "Other"    
+        "Other"
     ],
     "activationEvents": [
         "onCommand:extension.sayHello",
-        "onCommand:extension.xtmsend", 
-        "onCommand:extension.xtmconnect",       
+        "onCommand:extension.xtmsend",
+        "onCommand:extension.xtmconnect",
         "onLanguage:extempore"
     ],
     "main": "./out/extension",
@@ -39,28 +39,29 @@
             }
         ],
         "keybindings": [
-            {   
-                "key": "alt+e alt+c", 
+            {
+                "key": "alt+e alt+c",
                 "command": "extension.xtmconnect",
-                "when": "editorTextFocus" 
+                "when": "editorTextFocus"
             },
-            {   
-                "key": "alt+e alt+d", 
+            {
+                "key": "alt+e alt+d",
                 "command": "extension.xtmdisconnect",
-                "when": "editorTextFocus" 
+                "when": "editorTextFocus"
             },
-            {   
-                "key": "alt+e alt+s", 
+            {
+                "key": "alt+e alt+s",
                 "command": "extension.xtmsend",
-                "when": "editorTextFocus" 
+                "when": "editorTextFocus"
             },
-            {   
-                "key": "alt+e alt+e", 
+            {
+                "key": "alt+e alt+e",
                 "command": "extension.xtmsend",
-                "when": "editorTextFocus" 
+                "when": "editorTextFocus"
             }
         ],
-        "snippets": [{
+        "snippets": [
+            {
                 "language": "extempore",
                 "path": "./snippets/extempore.json"
             }
@@ -82,7 +83,6 @@
                 "command": "extension.xtmdisconnect",
                 "title": "Extempore Disconnect"
             }
-
         ]
     },
     "scripts": {
@@ -92,8 +92,7 @@
         "postinstall": "node ./node_modules/vscode/bin/install",
         "test": "npm run compile && node ./node_modules/vscode/bin/test"
     },
-    "dependencies": {
-    },
+    "dependencies": {},
     "devDependencies": {
         "typescript": "^2.6.1",
         "vscode": "^1.1.6",
