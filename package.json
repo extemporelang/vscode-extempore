@@ -3,7 +3,7 @@
     "displayName": "Extempore",
     "description": "Extempore language support",
     "version": "0.0.1",
-    "publisher": "MOSO",
+    "publisher": "extemporelang",
     "engines": {
         "vscode": "^1.18.0"
     },
