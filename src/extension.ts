@@ -6,7 +6,7 @@ import * as net from 'net';
 
 import { xtmIndent, xtmInSexpr, xtmSexprToString } from './sexpr';
 
-let socket = null;
+declare var socket: net.Socket;
 
 let CRLF2LF = (strin: string): string => {
     //console.log("CRLF_IN:\n", strin);
@@ -93,22 +93,9 @@ export function activate(context: vscode.ExtensionContext) {
         }
     }, '\n');
     context.subscriptions.push(indentDisposable);
-
-    // vscode.languages.registerDocumentFormattingEditProvider('extempore', {
-    //     provideDocumentFormattingEdits(document: vscode.TextDocument): vscode.TextEdit[] {
-    //         console.log("Hello World");
-    //         /*
-    //         const firstLine = document.lineAt(0);
-    //         if (firstLine.text !== ';; Extempore rules!') {
-    //             return [vscode.TextEdit.insert(firstLine.range.start, ';; Extempore rules!\n')];
-    //         }
-    //         */
-    //         return null;
-    //     }
-    // });
-    
 }
 
 // this method is called when your extension is deactivated
 export function deactivate() {
+    socket.destroy();
 }
