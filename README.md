@@ -1,6 +1,6 @@
-# extempore README
+# vscode-extempore
 
-An (bare bones at present) Extempore extension for Visual Studio Code
+[Extempore](https://extemporelang.github.io) support for Visual Studio Code
 
 ## Features
 
@@ -17,6 +17,16 @@ An (bare bones at present) Extempore extension for Visual Studio Code
 ## Known Issues
 
 Only skeleton implementation at the moment
+
+## Developer Notes
+
+To work on this VSCode extension (any help is appreciated!) you need to:
+
+1. install the deps with `npm install`
+2. [activate](https://code.visualstudio.com/docs/extensions/example-hello-world#_extension-activation)
+   the extension
+3. make it better
+4. submit a pull request
 
 ## Release Notes
 
