@@ -11,7 +11,6 @@
         "Other"
     ],
     "activationEvents": [
-        "onCommand:extension.sayHello",
         "onCommand:extension.xtmsend",
         "onCommand:extension.xtmconnect",
         "onLanguage:extempore"
@@ -67,10 +66,6 @@
             }
         ],
         "commands": [
-            {
-                "command": "extension.sayHello",
-                "title": "Hello World"
-            },
             {
                 "command": "extension.xtmsend",
                 "title": "Extempore Send"
