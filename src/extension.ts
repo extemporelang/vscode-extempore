@@ -37,9 +37,12 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(sendSexprDisposable);
 
     // connect to extempore
-    let connectDisposable = vscode.commands.registerCommand('extension.xtmconnect', (host = 'localhost', port = 7099) => {
+    let connectDisposable = vscode.commands.registerCommand('extension.xtmconnect', async () => {
+        let hostname: string = await vscode.window.showInputBox({ prompt: 'host:', value: 'localhost' });
+        let portString: string = await vscode.window.showInputBox({ prompt: 'port:', value: '7099' });
+        let port: number = parseInt(portString);
         socket = new net.Socket();
-        socket.connect(port, host, () => {
+        socket.connect(port, hostname, () => {
             vscode.window.showInformationMessage(`Connected to Extempore on port ${port}`);
         });
         socket.on('data', (data) => {
