@@ -38,25 +38,28 @@ export function activate(context: vscode.ExtensionContext) {
 
     // connect to extempore
     let connectDisposable = vscode.commands.registerCommand('extension.xtmconnect', async () => {
-        let hostname: string = await vscode.window.showInputBox({ prompt: 'host:', value: 'localhost' });
-        let portString: string = await vscode.window.showInputBox({ prompt: 'port:', value: '7099' });
+        let hostname: string = await vscode.window.showInputBox({ prompt: 'Hostname', value: 'localhost' });
+        let portString: string = await vscode.window.showInputBox({ prompt: 'Port number', value: '7099' });
         let port: number = parseInt(portString);
+
+        // create Extempore socket
         socket = new net.Socket();
-        socket.connect(port, hostname, () => {
-            vscode.window.showInformationMessage(`Connected to Extempore on port ${port}`);
-        });
-        socket.on('data', (data) => {
-            // console.log("receive-data: " + JSON.stringify(data));
-        });
-        socket.on('close', () => {
-            vscode.window.showInformationMessage(`Connection to port ${port} closed`);            
-        });
-        socket.on('error', function (err) {
-            vscode.window.showInformationMessage("Error: " + err.message);
-            //console.log("Error: "+err.message);
-        })
         socket.setEncoding('ascii');        
         socket.setKeepAlive(true);
+
+        // set socket callbacks
+        socket.connect(port, hostname, () => {
+            vscode.window.setStatusBarMessage(`Extempore: connected to port ${port}`);
+        });
+        socket.on('data', (data) => {
+            vscode.window.setStatusBarMessage(data.toString());
+        });
+        socket.on('close', () => {
+            vscode.window.setStatusBarMessage(`Extempore: connection to port ${port} closed`);            
+        });
+        socket.on('error', (err) => {
+            vscode.window.showErrorMessage(`Extempore: socket connection error "${err.message}"`);
+        })
     });
     context.subscriptions.push(connectDisposable);
 
