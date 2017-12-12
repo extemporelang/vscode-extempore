@@ -1,14 +1,14 @@
 {
-    "name": "extempore",
-    "displayName": "Extempore",
-    "description": "Extempore language support",
+    "name": "vscode-extempore",
+    "displayName": "vscode-extempore",
+    "description": "Extempore language support for VSCode",
     "version": "0.0.1",
     "publisher": "extemporelang",
     "engines": {
         "vscode": "^1.18.0"
     },
     "categories": [
-        "Other"
+        "Languages"
     ],
     "activationEvents": [
         "onCommand:extension.xtmsend",
