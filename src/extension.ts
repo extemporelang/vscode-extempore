@@ -6,7 +6,7 @@ import * as net from 'net';
 
 import { xtmIndent, xtmInSexpr, xtmSexprToString } from './sexpr';
 
-declare var socket: net.Socket;
+let socket: net.Socket;
 
 let CRLF2LF = (strin: string): string => {
     //console.log("CRLF_IN:\n", strin);
