@@ -21,8 +21,8 @@ export function activate(context: vscode.ExtensionContext) {
     
     console.log('Extempore extension activated.');
     
-    // send sexpr
-    let sendSexprDisposable = vscode.commands.registerCommand('extension.xtmsend', ()  => {
+    // eval sexpr
+    let evalSexprDisposable = vscode.commands.registerCommand('extension.xtmeval', ()  => {
         let document = vscode.window.activeTextEditor.document;
         let txtstr = document.getText();
         // make sure we are LF ends for Extempore comms
@@ -34,7 +34,7 @@ export function activate(context: vscode.ExtensionContext) {
         let commsstr = unixstr.concat("\r\n");
         socket.write(commsstr);
     });
-    context.subscriptions.push(sendSexprDisposable);
+    context.subscriptions.push(evalSexprDisposable);
 
     // connect to extempore
     let connectDisposable = vscode.commands.registerCommand('extension.xtmconnect', async () => {

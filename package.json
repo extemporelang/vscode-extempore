@@ -11,7 +11,7 @@
         "Languages"
     ],
     "activationEvents": [
-        "onCommand:extension.xtmsend",
+        "onCommand:extension.xtmeval",
         "onCommand:extension.xtmconnect",
         "onLanguage:extempore"
     ],
@@ -41,7 +41,7 @@
             {
                 "key": "ctrl+enter",
                 "mac": "cmd+enter",
-                "command": "extension.xtmsend",
+                "command": "extension.xtmeval",
                 "when": "editorTextFocus"
             }
         ],
@@ -53,8 +53,8 @@
         ],
         "commands": [
             {
-                "command": "extension.xtmsend",
-                "title": "Extempore Send"
+                "command": "extension.xtmeval",
+                "title": "Extempore Eval"
             },
             {
                 "command": "extension.xtmconnect",
