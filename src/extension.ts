@@ -22,7 +22,7 @@ export function activate(context: vscode.ExtensionContext) {
     console.log('Extempore extension activated.');
     
     // send sexpr
-    let sendSexprDisposable = vscode.commands.registerCommand('extension.xtmsend', () => {
+    let sendSexprDisposable = vscode.commands.registerCommand('extension.xtmsend', ()  => {
         let document = vscode.window.activeTextEditor.document;
         let txtstr = document.getText();
         // make sure we are LF ends for Extempore comms
@@ -37,16 +37,16 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(sendSexprDisposable);
 
     // connect to extempore
-    let connectDisposable = vscode.commands.registerCommand('extension.xtmconnect', () => {
+    let connectDisposable = vscode.commands.registerCommand('extension.xtmconnect', (host = 'localhost', port = 7099) => {
         socket = new net.Socket();
-        socket.connect(7099, '127.0.0.1', () => {
-            vscode.window.showInformationMessage('Connected to Extempore!');
+        socket.connect(port, host, () => {
+            vscode.window.showInformationMessage(`Connected to Extempore on port ${port}`);
         });
         socket.on('data', (data) => {
             // console.log("receive-data: " + JSON.stringify(data));
         });
         socket.on('close', () => {
-            vscode.window.showInformationMessage('Connection closed!');            
+            vscode.window.showInformationMessage(`Connection to port ${port} closed`);            
         });
         socket.on('error', function (err) {
             vscode.window.showInformationMessage("Error: " + err.message);
