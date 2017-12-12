@@ -39,22 +39,8 @@
         ],
         "keybindings": [
             {
-                "key": "alt+e alt+c",
-                "command": "extension.xtmconnect",
-                "when": "editorTextFocus"
-            },
-            {
-                "key": "alt+e alt+d",
-                "command": "extension.xtmdisconnect",
-                "when": "editorTextFocus"
-            },
-            {
-                "key": "alt+e alt+s",
-                "command": "extension.xtmsend",
-                "when": "editorTextFocus"
-            },
-            {
-                "key": "alt+e alt+e",
+                "key": "ctrl+enter",
+                "mac": "cmd+enter",
                 "command": "extension.xtmsend",
                 "when": "editorTextFocus"
             }
