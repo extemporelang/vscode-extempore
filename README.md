@@ -11,8 +11,9 @@ Install it through the Extensions view (`View > Extensions`).
 
 1. open up an Extempore file (with an `.xtm`) file extension.
 2. start Extempore on your machine (the built-in Terminal is a nice way to do it)
-3. connect VSCode to the Extempore process with `Extempore Connect`
-4. move your cursor into a top-level expression and evaluate it with `Extempore Eval`
+3. connect VSCode to the Extempore process with `Extempore Connect` (use the Command Palette)
+4. move your cursor into a top-level expression and evaluate it with `Extempore
+   Eval` (default keybinding: `ctrl+enter` on Win/Linux, `cmd+enter` on macOS)
 
 ## Features
 
