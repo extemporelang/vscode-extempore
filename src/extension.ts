@@ -19,9 +19,9 @@ let CRLF2LF = (strin: string): string => {
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-    
+
     console.log('Extempore extension activated.');
-    
+
     // eval sexpr
     let evalSexprDisposable = vscode.commands.registerCommand('extension.xtmeval', ()  => {
         let document = vscode.window.activeTextEditor.document;
@@ -57,7 +57,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         // create Extempore socket
         socket = new net.Socket();
-        socket.setEncoding('ascii');        
+        socket.setEncoding('ascii');
         socket.setKeepAlive(true);
 
         // set socket callbacks
@@ -68,7 +68,7 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.window.setStatusBarMessage(data.toString());
         });
         socket.on('close', () => {
-            vscode.window.setStatusBarMessage(`Extempore: connection to port ${port} closed`);            
+            vscode.window.setStatusBarMessage(`Extempore: connection to port ${port} closed`);
         });
         socket.on('error', (err) => {
             vscode.window.showErrorMessage(`Extempore: socket connection error "${err.message}"`);
@@ -81,20 +81,20 @@ export function activate(context: vscode.ExtensionContext) {
         socket.destroy();
     });
     context.subscriptions.push(disconnectDisposable);
-    
+
     // indentation
     let indentDisposable = vscode.languages.registerOnTypeFormattingEditProvider('extempore', {
         provideOnTypeFormattingEdits(document: TextDocument, position: Position, ch: string, options: FormattingOptions, token: CancellationToken): ProviderResult<TextEdit[]> {
             let previousLines = new Position(0, 0);
             let backRange = new vscode.Range(previousLines, position);
             let txtstr = document.getText(backRange);
-            let indent = xtmIndent(txtstr); 
+            let indent = xtmIndent(txtstr);
 
             vscode.window.activeTextEditor.edit((edit)=> {
-                let pos = vscode.window.activeTextEditor.selection.active;                    
+                let pos = vscode.window.activeTextEditor.selection.active;
                 let startOfLine = new Position(pos.line, 0);
                 let sol = new Range(startOfLine, pos);
-                edit.delete(sol);                                        
+                edit.delete(sol);
                 let emptyStr = ' '.repeat(indent);
                 edit.insert(startOfLine,emptyStr);
             });
