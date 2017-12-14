@@ -28,7 +28,6 @@ Install it through the Extensions view (`View > Extensions`).
 - more snippets
 - make `Extempore Eval` send the current top-level `define`/`bind-func` for evaluation, rather than the directly enclosing one
 - play nice with paredit/parinfer/other fancy editing tools
-- automatically start/stop/manage the extempore process in the terminal
 
 ## Developer Notes
 
