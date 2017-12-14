@@ -3,6 +3,7 @@
 import {ProviderResult, TextEdit, CancellationToken, FormattingOptions, TextEditor, TextDocument, Position, Range } from 'vscode';
 import * as vscode from 'vscode';
 import * as net from 'net';
+import * as os from 'os';
 
 import { xtmIndent, xtmInSexpr, xtmSexprToString } from './sexpr';
 
@@ -38,14 +39,33 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(evalSexprDisposable);
 
     // start Extempore in a new Terminal
-    let startExtemporeDisposable = vscode.commands.registerCommand('extension.xtmstart', () => {
+    let startExtemporeDisposable = vscode.commands.registerCommand('extension.xtmstart', async () => {
+        // find the path to the extempore folder
+        let config = vscode.workspace.getConfiguration("extempore");
+        let sharedir: string = config.get("sharedir");
+
+        if (!sharedir) {
+            await vscode.window.showInformationMessage('In the following prompt, select the folder where you installed/downloaded Extempore.');
+            sharedir = await vscode.window.showOpenDialog({
+                canSelectFiles: false,
+                canSelectFolders: true,
+                canSelectMany: false,
+                openLabel: 'Extempore folder'
+            }).toString();
+            config.update('sharedir', sharedir);
+        }
+
         // if there's already an Extempore terminal running, kill it
         if (terminal) {
             terminal.dispose();
         }
         terminal = vscode.window.createTerminal("Extempore");
         terminal.show(true); // show, but don't steal focus
-        terminal.sendText("extempore");
+        if (os.platform() === 'win32') {
+            terminal.sendText('./extempore.exe');
+        } else {
+            terminal.sendText('./extempore');
+        };
     });
     context.subscriptions.push(startExtemporeDisposable);
 
