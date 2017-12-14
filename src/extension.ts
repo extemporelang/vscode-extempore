@@ -9,7 +9,7 @@ import { xtmIndent, xtmInSexpr, xtmSexprToString } from './sexpr';
 let socket: net.Socket;
 let terminal: vscode.Terminal;
 
-let CRLF2LF = (strin: string): string => {
+const crlf2lf = (strin: string): string => {
     //console.log("CRLF_IN:\n", strin);
     let strout = strin.replace(/(\r\n|\n|\r)/gm, "\x0A");
     //console.log("LF_OUT:\n", strout);
@@ -31,7 +31,7 @@ export function activate(context: vscode.ExtensionContext) {
         let sexpr = xtmInSexpr(txtstr, document.offsetAt(pos) - 1);
         let sexprstr = xtmSexprToString(txtstr, sexpr);
         // console.log("send-data: " + JSON.stringify(sexpr) + "\n'" + sexprstr + "'");
-        let unixstr = CRLF2LF(sexprstr);
+        let unixstr = crlf2lf(sexprstr);
         let commsstr = unixstr.concat("\r\n");
         socket.write(commsstr);
     });
