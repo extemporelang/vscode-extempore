@@ -7,6 +7,7 @@ import * as net from 'net';
 import { xtmIndent, xtmInSexpr, xtmSexprToString } from './sexpr';
 
 let socket: net.Socket;
+let terminal: vscode.Terminal;
 
 let CRLF2LF = (strin: string): string => {
     //console.log("CRLF_IN:\n", strin);
@@ -38,7 +39,11 @@ export function activate(context: vscode.ExtensionContext) {
 
     // start Extempore in a new Terminal
     let startExtemporeDisposable = vscode.commands.registerCommand('extension.xtmstart', () => {
-        let terminal = vscode.window.createTerminal("Extempore");
+        // if there's already an Extempore terminal running, kill it
+        if (terminal) {
+            terminal.dispose();
+        }
+        terminal = vscode.window.createTerminal("Extempore");
         terminal.show(true); // show, but don't steal focus
         terminal.sendText("extempore");
     });
