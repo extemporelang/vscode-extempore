@@ -11,8 +11,9 @@
         "Languages"
     ],
     "activationEvents": [
-        "onCommand:extension.xtmeval",
+        "onCommand:extension.xtmstart",
         "onCommand:extension.xtmconnect",
+        "onCommand:extension.xtmeval",
         "onLanguage:extempore"
     ],
     "main": "./out/extension",
@@ -53,12 +54,16 @@
         ],
         "commands": [
             {
-                "command": "extension.xtmeval",
-                "title": "Extempore Eval"
+                "command": "extension.xtmstart",
+                "title": "Extempore Start"
             },
             {
                 "command": "extension.xtmconnect",
                 "title": "Extempore Connect"
+            },
+            {
+                "command": "extension.xtmeval",
+                "title": "Extempore Eval"
             },
             {
                 "command": "extension.xtmdisconnect",

@@ -36,6 +36,14 @@ export function activate(context: vscode.ExtensionContext) {
     });
     context.subscriptions.push(evalSexprDisposable);
 
+    // start Extempore in a new Terminal
+    let startExtemporeDisposable = vscode.commands.registerCommand('extension.xtmstart', () => {
+        let terminal = vscode.window.createTerminal("Extempore");
+        terminal.show(true); // show, but don't steal focus
+        terminal.sendText("extempore");
+    });
+    context.subscriptions.push(startExtemporeDisposable);
+
     // connect to extempore
     let connectDisposable = vscode.commands.registerCommand('extension.xtmconnect', async () => {
         let hostname: string = await vscode.window.showInputBox({ prompt: 'Hostname', value: 'localhost' });
@@ -69,8 +77,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
     context.subscriptions.push(disconnectDisposable);
     
-	// The document formatting provider interface defines the contract between extensions and
-	// the formatting-feature.
+    // indentation
     let indentDisposable = vscode.languages.registerOnTypeFormattingEditProvider('extempore', {
         provideOnTypeFormattingEdits(document: TextDocument, position: Position, ch: string, options: FormattingOptions, token: CancellationToken): ProviderResult<TextEdit[]> {
             let previousLines = new Position(0, 0);
