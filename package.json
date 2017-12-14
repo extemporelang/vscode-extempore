@@ -11,6 +11,7 @@
         "Languages"
     ],
     "activationEvents": [
+        "onCommand:extension.xtmsetsharedir",
         "onCommand:extension.xtmstart",
         "onCommand:extension.xtmconnect",
         "onCommand:extension.xtmeval",
@@ -53,6 +54,10 @@
             }
         ],
         "commands": [
+            {
+                "command": "extension.xtmsetsharedir",
+                "title": "Extempore Set Sharedir"
+            },
             {
                 "command": "extension.xtmstart",
                 "title": "Extempore Start"

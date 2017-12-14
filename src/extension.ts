@@ -39,20 +39,25 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(evalSexprDisposable);
 
     // start Extempore in a new Terminal
+    let setSharedirDisposable = vscode.commands.registerCommand('extension.xtmsetsharedir', async () => {
+        let sharedir = await vscode.window.showOpenDialog({
+            canSelectFiles: false,
+            canSelectFolders: true,
+            canSelectMany: false,
+            openLabel: 'Extempore folder'
+        }).toString();
+        // write to config file so it's remembered for next time
+        vscode.workspace.getConfiguration("extempore").update('sharedir', sharedir);
+    });
+    context.subscriptions.push(setSharedirDisposable);
+
+    // start Extempore in a new Terminal
     let startExtemporeDisposable = vscode.commands.registerCommand('extension.xtmstart', async () => {
         // find the path to the extempore folder
-        let config = vscode.workspace.getConfiguration("extempore");
-        let sharedir: string = config.get("sharedir");
+        let sharedir = vscode.workspace.getConfiguration("extempore").get<string>("sharedir");
 
         if (!sharedir) {
-            await vscode.window.showInformationMessage('In the following prompt, select the folder where you installed/downloaded Extempore.');
-            sharedir = await vscode.window.showOpenDialog({
-                canSelectFiles: false,
-                canSelectFolders: true,
-                canSelectMany: false,
-                openLabel: 'Extempore folder'
-            }).toString();
-            config.update('sharedir', sharedir);
+            vscode.window.showErrorMessage('Extempore: share directory not set---use "Extempore Set Sharedir" to set it.');
         }
 
         // if there's already an Extempore terminal running, kill it
@@ -62,9 +67,9 @@ export function activate(context: vscode.ExtensionContext) {
         terminal = vscode.window.createTerminal("Extempore");
         terminal.show(true); // show, but don't steal focus
         if (os.platform() === 'win32') {
-            terminal.sendText('./extempore.exe');
+            terminal.sendText(`./extempore.exe --sharedir=${sharedir}`);
         } else {
-            terminal.sendText('./extempore');
+            terminal.sendText(`./extempore --sharedir=${sharedir}`);
         };
     });
     context.subscriptions.push(startExtemporeDisposable);
