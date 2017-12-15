@@ -29,6 +29,14 @@ Install it through the Extensions view (`View > Extensions`).
 - make `Extempore Eval` send the current top-level `define`/`bind-func` for evaluation, rather than the directly enclosing one
 - play nice with paredit/parinfer/other fancy editing tools
 
+## Changelog
+
+- `0.0.1`: initial release
+
+- `0.0.2`: prompt for host/port
+
+- `0.0.3`: add `Extempore Start`, send selected region (if selection is active)
+
 ## Developer Notes
 
 To work on this VSCode extension (any help is appreciated!) you need to:
