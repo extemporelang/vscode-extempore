@@ -16,6 +16,18 @@ const crlf2lf = (strin: string): string => {
     return strout;
 }
 
+const selectToplevelForm = async () => {
+    // no dowhile in ts as far as I can tell...
+    let currentSelection = vscode.window.activeTextEditor.selection;
+    vscode.commands.executeCommand("editor.action.smartSelect.grow");
+    let newSelection = vscode.window.activeTextEditor.selection;
+    while (!currentSelection.isEqual(newSelection)) {
+        currentSelection = newSelection;
+        vscode.commands.executeCommand("editor.action.smartSelect.grow");
+        newSelection = vscode.window.activeTextEditor.selection;
+    }
+}
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -24,16 +36,21 @@ export function activate(context: vscode.ExtensionContext) {
 
     // eval sexpr
     let evalSexprDisposable = vscode.commands.registerCommand('extension.xtmeval', ()  => {
-        let document = vscode.window.activeTextEditor.document;
-        let txtstr = document.getText();
-        // make sure we are LF ends for Extempore comms
-        let pos = vscode.window.activeTextEditor.selection.active;
-        let sexpr = xtmInSexpr(txtstr, document.offsetAt(pos) - 1);
-        let sexprstr = xtmSexprToString(txtstr, sexpr);
-        // console.log("send-data: " + JSON.stringify(sexpr) + "\n'" + sexprstr + "'");
-        let unixstr = crlf2lf(sexprstr);
-        let commsstr = unixstr.concat("\r\n");
-        socket.write(commsstr);
+        let editor = vscode.window.activeTextEditor;
+        let document = editor.document;
+        let evalString = "";
+
+        if (!editor.selection.isEmpty) {
+            // if no code is selected, select current top-level form
+            evalString = document.getText(editor.selection);
+        } else  {
+            let txtstr = document.getText();
+            // make sure we are LF ends for Extempore comms
+            let pos = vscode.window.activeTextEditor.selection.active;
+            let sexpr = xtmInSexpr(txtstr, document.offsetAt(pos) - 1);
+            evalString = xtmSexprToString(txtstr, sexpr);
+        }
+        socket.write(crlf2lf(evalString).concat("\r\n"));
     });
     context.subscriptions.push(evalSexprDisposable);
 
