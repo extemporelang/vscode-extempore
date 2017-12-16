@@ -13,7 +13,7 @@ Install it through the Extensions view (`View > Extensions`).
 2. start Extempore with `Extempore Start` (use the Command Palette)
 3. connect VSCode to the Extempore process with `Extempore Connect`
 4. move your cursor into a top-level expression and evaluate it with `Extempore
-   Eval` (default keybinding: `ctrl+enter` on Win/Linux, `cmd+enter` on macOS)
+   Eval` (default keybinding: <kbd>ctrl</kbd>+<kbd>enter</kbd> on Win/Linux, <kbd>cmd</kbd>+<kbd>enter</kbd> on macOS)
 
 ## Features
 
