@@ -1,6 +1,5 @@
 'use strict';
 
-import {ProviderResult, TextEdit, CancellationToken, FormattingOptions, TextEditor, TextDocument, Position, Range } from 'vscode';
 import * as vscode from 'vscode';
 import * as net from 'net';
 
@@ -55,6 +54,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(evalSexprDisposable);
 
     // start Extempore in a new Terminal
+    // TODO currently this assumes extempore is on $PATH, so it won't work on Windows
     let startExtemporeDisposable = vscode.commands.registerCommand('extension.xtmstart', () => {
         // if there's already an Extempore terminal running, kill it
         if (terminal) {
@@ -101,16 +101,16 @@ export function activate(context: vscode.ExtensionContext) {
 
     // indentation
     let indentDisposable = vscode.languages.registerOnTypeFormattingEditProvider('extempore', {
-        provideOnTypeFormattingEdits(document: TextDocument, position: Position, ch: string, options: FormattingOptions, token: CancellationToken): ProviderResult<TextEdit[]> {
-            let previousLines = new Position(0, 0);
+        provideOnTypeFormattingEdits(document: vscode.TextDocument, position: vscode.Position, ch: string, options: vscode.FormattingOptions, token: vscode.CancellationToken): vscode.ProviderResult<vscode.TextEdit[]> {
+            let previousLines = new vscode.Position(0, 0);
             let backRange = new vscode.Range(previousLines, position);
             let txtstr = document.getText(backRange);
             let indent = xtmIndent(txtstr);
 
             vscode.window.activeTextEditor.edit((edit)=> {
                 let pos = vscode.window.activeTextEditor.selection.active;
-                let startOfLine = new Position(pos.line, 0);
-                let sol = new Range(startOfLine, pos);
+                let startOfLine = new vscode.Position(pos.line, 0);
+                let sol = new vscode.Range(startOfLine, pos);
                 edit.delete(sol);
                 let emptyStr = ' '.repeat(indent);
                 edit.insert(startOfLine,emptyStr);
