@@ -8,23 +8,11 @@ import { xtmIndent, xtmInSexpr, xtmSexprToString } from './sexpr';
 let socket: net.Socket;
 let terminal: vscode.Terminal;
 
-const crlf2lf = (strin: string): string => {
+function crlf2lf(strin: string): string {
     //console.log("CRLF_IN:\n", strin);
     let strout = strin.replace(/(\r\n|\n|\r)/gm, "\x0A");
     //console.log("LF_OUT:\n", strout);
     return strout;
-}
-
-const selectToplevelForm = async () => {
-    // no dowhile in ts as far as I can tell...
-    let currentSelection = vscode.window.activeTextEditor.selection;
-    vscode.commands.executeCommand("editor.action.smartSelect.grow");
-    let newSelection = vscode.window.activeTextEditor.selection;
-    while (!currentSelection.isEqual(newSelection)) {
-        currentSelection = newSelection;
-        vscode.commands.executeCommand("editor.action.smartSelect.grow");
-        newSelection = vscode.window.activeTextEditor.selection;
-    }
 }
 
 // this method is called when your extension is activated
