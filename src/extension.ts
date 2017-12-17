@@ -15,6 +15,14 @@ function crlf2lf(strin: string): string {
     return strout;
 }
 
+function evalString(str: string) {
+    try {
+        socket.write(crlf2lf(str).concat("\r\n"));
+    } catch (error) {
+        vscode.window.showErrorMessage("Extempore: error sending code to process---do you need to connect?")
+    }
+ }
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -25,19 +33,19 @@ export function activate(context: vscode.ExtensionContext) {
     let evalSexprDisposable = vscode.commands.registerCommand('extension.xtmeval', ()  => {
         let editor = vscode.window.activeTextEditor;
         let document = editor.document;
-        let evalString = "";
+        let codeString = "";
 
         if (!editor.selection.isEmpty) {
             // if no code is selected, select current top-level form
-            evalString = document.getText(editor.selection);
+            codeString = document.getText(editor.selection);
         } else  {
             let txtstr = document.getText();
             // make sure we are LF ends for Extempore comms
             let pos = vscode.window.activeTextEditor.selection.active;
             let sexpr = xtmInSexpr(txtstr, document.offsetAt(pos) - 1);
-            evalString = xtmSexprToString(txtstr, sexpr);
+            codeString = xtmSexprToString(txtstr, sexpr);
         }
-        socket.write(crlf2lf(evalString).concat("\r\n"));
+        evalString(codeString);
     });
     context.subscriptions.push(evalSexprDisposable);
 
