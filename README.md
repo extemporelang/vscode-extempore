@@ -12,8 +12,9 @@ Install it through the Extensions view (`View > Extensions`).
 1. open up an Extempore file (with an `.xtm`) file extension.
 2. start Extempore with `Extempore Start` (use the Command Palette)
 3. connect VSCode to the Extempore process with `Extempore Connect`
-4. move your cursor into a top-level expression and evaluate it with `Extempore
-   Eval` (default keybinding: <kbd>ctrl</kbd>+<kbd>enter</kbd> on Win/Linux, <kbd>cmd</kbd>+<kbd>enter</kbd> on macOS)
+4. move your cursor into an Extempore expression and evaluate it with `Extempore
+   Eval` (default keybinding: <kbd>ctrl</kbd>+<kbd>enter</kbd> on Win/Linux,
+   <kbd>cmd</kbd>+<kbd>enter</kbd> on macOS)
 
 ## Configuration
 
@@ -65,7 +66,6 @@ after you've made your edits.
 
 - allow for multiple simultaneous connections (on different host/port)
 - more snippets
-- make `Extempore Eval` send the current top-level `define`/`bind-func` for evaluation, rather than the directly enclosing one
 - play nice with paredit/parinfer/other fancy editing tools
 
 ## Changelog
