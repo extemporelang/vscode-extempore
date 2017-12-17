@@ -2,6 +2,8 @@
 
 import * as vscode from 'vscode';
 import * as net from 'net';
+import * as os from 'os';
+import {spawnSync} from 'child_process';
 
 import { xtmIndent, xtmInSexpr, xtmSexprToString } from './sexpr';
 
@@ -21,7 +23,26 @@ function evalString(str: string) {
     } catch (error) {
         vscode.window.showErrorMessage("Extempore: error sending code to process---do you need to connect?")
     }
- }
+}
+
+function extemporeOnPath(): boolean {
+    if (os.platform() === "win32") {
+        return false;
+    } else {
+        return spawnSync("which", ["extempore"]).status === 0;
+    }
+}
+
+function getShareDirPath() {
+    let config = vscode.workspace.getConfiguration("extempore");
+    if (config.has("sharedir")) {
+        return config.get("sharedir");
+    } else if (vscode.workspace.rootPath) {
+        return vscode.workspace.rootPath;
+    } else {
+        return undefined;
+    }
+}
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -50,15 +71,29 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(evalSexprDisposable);
 
     // start Extempore in a new Terminal
-    // TODO currently this assumes extempore is on $PATH, so it won't work on Windows
-    let startExtemporeDisposable = vscode.commands.registerCommand('extension.xtmstart', () => {
+    let startExtemporeDisposable = vscode.commands.registerCommand('extension.xtmstart', async () => {
         // if there's already an Extempore terminal running, kill it
         if (extemporeTerminal) {
             extemporeTerminal.dispose();
         }
+        // find the path to the extempore folder
+        let sharedir = getShareDirPath();
+
+        if (!sharedir) {
+            vscode.window.showErrorMessage("Extempore: can't find extempore folder.");
+            return;
+        }
+
         extemporeTerminal = vscode.window.createTerminal("Extempore");
         extemporeTerminal.show(true); // show, but don't steal focus
-        extemporeTerminal.sendText("extempore");
+
+        if (os.platform() === 'win32') {
+            extemporeTerminal.sendText(`cwd ${sharedir}`);
+            extemporeTerminal.sendText(`./extempore.exe`);
+        } else {
+            extemporeTerminal.sendText(`cd ${sharedir}`);
+            extemporeTerminal.sendText(extemporeOnPath() ? "extempore" : "./extempore");
+        };
     });
     context.subscriptions.push(startExtemporeDisposable);
 
