@@ -5,7 +5,7 @@ import * as net from 'net';
 import * as os from 'os';
 import {spawnSync} from 'child_process';
 
-import { xtmIndent, xtmInSexpr, xtmSexprToString } from './sexpr';
+import { xtmIndent, xtmInSexpr, xtmTopLevelSexpr, xtmSexprToString } from './sexpr';
 
 let socket: net.Socket;
 let extemporeTerminal: vscode.Terminal;
@@ -63,7 +63,7 @@ export function activate(context: vscode.ExtensionContext) {
             let txtstr = document.getText();
             // make sure we are LF ends for Extempore comms
             let pos = vscode.window.activeTextEditor.selection.active;
-            let sexpr = xtmInSexpr(txtstr, document.offsetAt(pos) - 1);
+            let sexpr = xtmTopLevelSexpr(txtstr, document.offsetAt(pos) - 1);
             codeString = xtmSexprToString(txtstr, sexpr);
         }
         evalString(codeString);

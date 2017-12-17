@@ -29,7 +29,7 @@ let sexprStripComments = (str: string): string => {
 }
 
 let expandSexpr = (strin: string, sexpr: SexprResult): SexprResult => {
-    if (sexpr.start < 1) return sexpr; // can't be any further expansion 
+    if (sexpr.start < 1) return sexpr; // can't be any further expansion
     let newsexpr = inSexpr(strin, sexpr.start - 1);
     if (newsexpr.start > -1 && newsexpr.end > -1) {
         return expandSexpr(strin, newsexpr);
@@ -49,7 +49,7 @@ let sexprString = (str: string, sexpr: SexprResult): string => {
     if ((sexpr.start === -1) && (sexpr.end === -1)) return "";
     return str.substring(
         (sexpr.start === -1) ? 0 : sexpr.start,
-        (sexpr.end < 0) ? str.length : sexpr.end + 1);  
+        (sexpr.end < 0) ? str.length : sexpr.end + 1);
 }
 
 let inSexpr = (strin: string, pos: number): SexprResult => {
@@ -97,6 +97,15 @@ let inSexpr = (strin: string, pos: number): SexprResult => {
     return { start: start, end: end, openings: numopen, closings: numclosed };
 }
 
+let topLevelSexpr = (strin: string, pos: number): SexprResult => {
+    let s = inSexpr(strin, pos);
+    let s_expanded = expandSexpr(strin, s);
+    while (!(s.start === s_expanded.start && s.end === s_expanded.end)) {
+        s = s_expanded;
+        s_expanded = expandSexpr(strin, s_expanded);
+    }
+    return s_expanded;
+}
 
 let findLastOpenParen = (strin: string): number => {
     let sexpr = inSexpr(strin, strin.length - 1);
@@ -109,7 +118,7 @@ let findLastOpenParen = (strin: string): number => {
 let lineIndentAmount = (strin: string, sexpr: SexprResult): number => {
     let lineStart = strin.lastIndexOf("\n", sexpr.start);
     let lineEnd = strin.indexOf("\n", sexpr.start);
-    let lineStr = strin.substring(lineStart, lineEnd); 
+    let lineStr = strin.substring(lineStart, lineEnd);
     let match = lineStr.match("^\\s*"); // indent on FIRST LINE
     let indent = (match.length) ? match[0].length - 1 : 0;
     return indent;
@@ -118,7 +127,7 @@ let lineIndentAmount = (strin: string, sexpr: SexprResult): number => {
 let sexprArgPos = (strin: string, sexpr: SexprResult): number => {
     let lineStart = strin.lastIndexOf("\n", sexpr.start);
     let lineEnd = strin.indexOf("\n", sexpr.start);
-    let lineStr = strin.substring(lineStart, lineEnd); 
+    let lineStr = strin.substring(lineStart, lineEnd);
     let name = sexprName(strin, sexpr);
     console.log("myname: " + name);
     let indent = lineStr.indexOf(name) + name.length;
@@ -133,7 +142,7 @@ let sexprIndent = (strin: string, sexpr: SexprResult): number => {
     if (sexpr.start === -1 || sexpr.end !== -1) return 0; //indent;
     let name = sexprName(strin, sexpr);
     let shortIndent = (NamedIndentsShort.indexOf(name) > -1) ? true : false;
-    let indent = lineIndentAmount(strin, sexpr);    
+    let indent = lineIndentAmount(strin, sexpr);
     if (shortIndent) return indent + 2;
     return sexprArgPos(strin,sexpr);
 }
@@ -149,4 +158,5 @@ export let xtmIndent = (strin: string): number => {
 }
 
 export let xtmInSexpr = inSexpr;
+export let xtmTopLevelSexpr = topLevelSexpr;
 export let xtmSexprToString = sexprString;
