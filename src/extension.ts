@@ -3,7 +3,7 @@
 import * as vscode from 'vscode';
 import * as net from 'net';
 import * as os from 'os';
-import {spawnSync} from 'child_process';
+import { spawnSync } from 'child_process';
 import { setTimeout } from 'timers';
 
 import { xtmIndent, xtmInSexpr, xtmTopLevelSexpr, xtmSexprToString } from './sexpr';
