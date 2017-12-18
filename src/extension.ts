@@ -51,7 +51,7 @@ function blinkRange(range: vscode.Range) {
         backgroundColor: "#fd971f"
     });
     vscode.window.activeTextEditor.setDecorations(decoration, [range]);
-    setTimeout(() => decoration.dispose(), 1000);
+    setTimeout(() => decoration.dispose(), 500);
 }
 
 // this method is called when your extension is activated
@@ -69,12 +69,17 @@ export function activate(context: vscode.ExtensionContext) {
         if (!editor.selection.isEmpty) {
             // if no code is selected, select current top-level form
             codeString = document.getText(editor.selection);
+            // "flash" the eval'ed code
+            blinkRange(editor.selection);
         } else  {
             let txtstr = document.getText();
             // make sure we are LF ends for Extempore comms
             let pos = vscode.window.activeTextEditor.selection.active;
             let sexpr = xtmTopLevelSexpr(txtstr, document.offsetAt(pos) - 1);
             codeString = xtmSexprToString(txtstr, sexpr);
+            // "flash" the eval'ed code
+            blinkRange(new vscode.Range(document.positionAt(sexpr.start),
+                                        document.positionAt(sexpr.end+1)));
         }
         evalString(codeString);
     });
