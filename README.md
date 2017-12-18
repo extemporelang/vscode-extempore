@@ -76,6 +76,8 @@ after you've made your edits.
 
 - `0.0.3`: add `Extempore Start`, send selected region (if selection is active)
 
+- `0.0.4`: top-level eval, pretty blinking on eval, sharedir stuff
+
 ## Developer Notes
 
 To work on this VSCode extension (any help is appreciated!) you need to:
