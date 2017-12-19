@@ -19,6 +19,8 @@
         "onCommand:extension.xtmstart",
         "onCommand:extension.xtmconnect",
         "onCommand:extension.xtmeval",
+        "onCommand:extension.xtmdisconnect",
+        "onCommand:extension.xtmhelp",
         "onLanguage:extempore"
     ],
     "main": "./out/extension",
@@ -73,6 +75,10 @@
             {
                 "command": "extension.xtmdisconnect",
                 "title": "Extempore Disconnect"
+            },
+            {
+                "command": "extension.xtmhelp",
+                "title": "Extempore Help"
             }
         ]
     },
@@ -88,5 +94,8 @@
         "vscode": "^1.1.6",
         "@types/node": "^7.0.43",
         "@types/mocha": "^2.2.42"
+    },
+    "dependencies": {
+        "opn": "^5.1.0"
     }
 }

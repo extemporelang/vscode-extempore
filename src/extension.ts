@@ -6,6 +6,9 @@ import * as os from 'os';
 import { spawnSync } from 'child_process';
 import { setTimeout } from 'timers';
 
+// npm deps
+const opn = require('opn');
+
 import { xtmIndent, xtmInSexpr, xtmTopLevelSexpr, xtmSexprToString } from './sexpr';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -23,6 +26,11 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.xtmdisconnect',
         () => extempore.disconnectCommand()));
+    // eventually the help command should do more than just jump to
+    // the main Extempore page but this is better than nothing for now
+    context.subscriptions.push(
+        vscode.commands.registerCommand('extension.xtmhelp',
+        () => opn('https://extemporelang.github.io/')));
 
     // unless paredit or parinfer are active, use the extempore formatter
     let enableFormatter = true;
