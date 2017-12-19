@@ -84,11 +84,11 @@ class Extempore {
         let codeString = "";
 
         if (!editor.selection.isEmpty) {
-            // if no code is selected, select current top-level form
             codeString = document.getText(editor.selection);
             // "flash" the eval'ed code
             this.evalBlink(editor.selection);
         } else {
+            // if no code is selected, select current top-level form
             let txtstr = document.getText();
             // make sure we are LF ends for Extempore comms
             let pos = vscode.window.activeTextEditor.selection.active;
