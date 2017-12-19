@@ -98,6 +98,10 @@ let inSexpr = (strin: string, pos: number): SexprResult => {
 }
 
 let topLevelSexpr = (strin: string, pos: number): SexprResult => {
+    // if we're currently on an open paren, jump inside...
+    if (strin[pos+1] === '(') {
+        pos++;
+    }
     let s = inSexpr(strin, pos);
     let s_expanded = expandSexpr(strin, s);
     while (!(s.start === s_expanded.start && s.end === s_expanded.end)) {
