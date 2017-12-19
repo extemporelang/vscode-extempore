@@ -11,10 +11,18 @@ import { xtmIndent, xtmInSexpr, xtmTopLevelSexpr, xtmSexprToString } from './sex
 export function activate(context: vscode.ExtensionContext) {
     let extempore = new Extempore();
 
-    context.subscriptions.push(vscode.commands.registerCommand('extension.xtmstart', extempore.startCommand));
-    context.subscriptions.push(vscode.commands.registerCommand('extension.xtmconnect', extempore.connectCommand));
-    context.subscriptions.push(vscode.commands.registerCommand('extension.xtmeval', extempore.evalCommand));
-    context.subscriptions.push(vscode.commands.registerCommand('extension.xtmdisconnect', extempore.disconnectCommand));
+    context.subscriptions.push(
+        vscode.commands.registerCommand('extension.xtmstart',
+        () => extempore.startCommand()));
+    context.subscriptions.push(
+        vscode.commands.registerCommand('extension.xtmconnect',
+        () => extempore.connectCommand()));
+    context.subscriptions.push(
+        vscode.commands.registerCommand('extension.xtmeval',
+        () => extempore.evalCommand()));
+    context.subscriptions.push(
+        vscode.commands.registerCommand('extension.xtmdisconnect',
+        () => extempore.disconnectCommand()));
 
     context.subscriptions.push(extempore);
 }
@@ -148,7 +156,7 @@ class Extempore {
     disconnectCommand() {
         this._socket.destroy();
     }
-    
+
     registerFormattingProvider(context: vscode.ExtensionContext) {
         let indentDisposable = vscode.languages.registerOnTypeFormattingEditProvider('extempore', {
             provideOnTypeFormattingEdits(document: vscode.TextDocument, position: vscode.Position, ch: string, options: vscode.FormattingOptions, token: vscode.CancellationToken): vscode.ProviderResult<vscode.TextEdit[]> {
