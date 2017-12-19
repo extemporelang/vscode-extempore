@@ -24,6 +24,18 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand('extension.xtmdisconnect',
         () => extempore.disconnectCommand()));
 
+    // unless paredit or parinfer are active, use the extempore formatter
+    let enableFormatter = true;
+    for (const extensionId of ['clptn.code-paredit', 'shaunlebron.vscode-parinfer']) {
+        let ext = vscode.extensions.getExtension(extensionId);
+        if (ext && ext.isActive) {
+            enableFormatter = false;
+        }
+    }
+    if (enableFormatter) {
+        extempore.registerFormattingProvider(context);
+    }
+
     context.subscriptions.push(extempore);
 }
 
@@ -84,11 +96,11 @@ class Extempore {
         let codeString = "";
 
         if (!editor.selection.isEmpty) {
+            // if no code is selected, select current top-level form
             codeString = document.getText(editor.selection);
             // "flash" the eval'ed code
             this.evalBlink(editor.selection);
         } else {
-            // if no code is selected, select current top-level form
             let txtstr = document.getText();
             // make sure we are LF ends for Extempore comms
             let pos = vscode.window.activeTextEditor.selection.active;
