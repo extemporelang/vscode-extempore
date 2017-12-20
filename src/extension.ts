@@ -5,6 +5,7 @@ import * as net from 'net';
 import * as os from 'os';
 import { spawnSync } from 'child_process';
 import { setTimeout } from 'timers';
+import { env } from 'process';
 
 // npm deps
 const opn = require('opn');
@@ -78,8 +79,10 @@ class Extempore {
     }
 
     getExtemporePath() {
-        let config = vscode.workspace.getConfiguration("extempore");
-        if (config.has("sharedir")) {
+        const config = vscode.workspace.getConfiguration("extempore");
+        if (env["EXTEMPORE_PATH"]) {
+            return env["EXTEMPORE_PATH"];
+        } else if (config.has("sharedir")) {
             return config.get("sharedir");
         } else if (vscode.workspace.rootPath) {
             return vscode.workspace.rootPath;
