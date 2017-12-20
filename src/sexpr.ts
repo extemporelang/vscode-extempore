@@ -45,13 +45,6 @@ let sexprName = (str: string, sexpr: SexprResult): string => {
     return name[0];
 }
 
-let sexprString = (str: string, sexpr: SexprResult): string => {
-    if ((sexpr.start === -1) && (sexpr.end === -1)) return "";
-    return str.substring(
-        (sexpr.start === -1) ? 0 : sexpr.start,
-        (sexpr.end < 0) ? str.length : sexpr.end + 1);
-}
-
 let inSexpr = (strin: string, pos: number): SexprResult => {
     let str = sexprStripComments(strin);
     let start = -1;
@@ -97,7 +90,7 @@ let inSexpr = (strin: string, pos: number): SexprResult => {
     return { start: start, end: end, openings: numopen, closings: numclosed };
 }
 
-let topLevelSexpr = (strin: string, pos: number): SexprResult => {
+export let xtmTopLevelSexpr = (strin: string, pos: number): SexprResult => {
     // if we're currently on an open paren, jump inside...
     if (strin[pos+1] === '(') {
         pos++;
@@ -155,12 +148,5 @@ export let xtmIndent = (strin: string): number => {
     let sexpr = inSexpr(strin, strin.length - 1);
     let indent = sexprIndent(strin, sexpr);
     let name = sexprName(strin, sexpr);
-    //console.log("sexpr: " + JSON.stringify(sexpr));
-    //console.log("name: " + name + "  indent: " + indent);
-    //console.log("sexp-str: " + sexprString(strin, sexpr));
     return indent;
 }
-
-export let xtmInSexpr = inSexpr;
-export let xtmTopLevelSexpr = topLevelSexpr;
-export let xtmSexprToString = sexprString;
