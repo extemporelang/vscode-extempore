@@ -10,7 +10,15 @@ import { env } from 'process';
 // npm deps
 const opn = require('opn');
 
-import { xtmIndent, xtmTopLevelSexpr } from './sexpr';
+const matchBracket = require('match-bracket');
+interface BracketPosition {
+    line: number | null // line number
+    cursor: number | null // cursor number
+}
+// declare function matchBracket(code: string, bracketPos: BracketPosition, extension?: string): BracketPosition;
+
+import { xtmIndent } from './sexpr';
+import { TextEditorCursorStyle } from 'vscode';
 
 export function activate (context: vscode.ExtensionContext) {
 
@@ -22,12 +30,14 @@ export function activate (context: vscode.ExtensionContext) {
 
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.xtmeval', () => {
-            try {
-                let evalRange = getRangeForEval();
-                sendToProcess(vscode.window.activeTextEditor.document.getText(evalRange));
-                blinkRange(evalRange);
-            } catch (error) {
-                vscode.window.showErrorMessage("Extempore: error sending code to process---do you need to connect?")
+            let evalRange = getRangeForEval();
+            if (evalRange) {
+                try {
+                    sendToProcess(vscode.window.activeTextEditor.document.getText(evalRange));
+                    blinkRange(evalRange);
+                } catch (error) {
+                    vscode.window.showErrorMessage("Extempore: error sending code to process---do you need to connect?")
+                }
             }
         }));
 
@@ -83,11 +93,6 @@ let shouldUseFormatter = () => {
     return true;
 }
 
-// utility functions
-let crlf2lf = (str: string): string => {
-    return str.replace(/(\r\n|\n|\r)/gm, "\x0A");
-}
-
 let isExtemporeOnSystemPath = (): boolean => {
     if (os.platform() === "win32") {
         return false;
@@ -109,19 +114,61 @@ let getExtemporePath = (): string => {
     }
 }
 
-// eval sexpr
+let openingBracketPos = (document: vscode.TextDocument, pos: vscode.Position): vscode.Position => {
+    let text = document.getText();
+    let cursorPos = document.offsetAt(pos);
+    let bracketOffset = text.lastIndexOf("(", cursorPos);
+    if (bracketOffset === -1) {
+        return null; // we're not inside any bracket pair
+    } else {
+        return document.positionAt(bracketOffset);
+    }
+}
+
+// helpers for converting between the match-bracket data structure and vscode.Range
+let match2pos = (match: BracketPosition): vscode.Position => {
+    return new vscode.Position(match.line-1, match.cursor-1);
+}
+
+let pos2match = (pos: vscode.Position): BracketPosition => {
+    return { line: pos.line + 1, cursor: pos.character + 1};
+}
+
 let getRangeForEval = (): vscode.Range => {
     let editor = vscode.window.activeTextEditor;
     let document = editor.document;
 
     if (!editor.selection.isEmpty) {
-         return editor.selection;
+        // if there's a selection active, use that
+        return editor.selection;
     } else {
-        let txtstr = document.getText();
-        // make sure we are LF ends for Extempore comms
-        let pos = vscode.window.activeTextEditor.selection.active;
-        let sexpr = xtmTopLevelSexpr(txtstr, document.offsetAt(pos) - 1);
-        return new vscode.Range(document.positionAt(sexpr.start), document.positionAt(sexpr.end + 1));
+        // otherwise find the enclosing top-level s-expression
+        let text = document.getText();
+        let bracketPos = openingBracketPos(document, document.positionAt(document.offsetAt(editor.selection.active)+1));
+        let openBracketPos, closeBracketPos;
+        while (bracketPos) {
+            let char = text[document.offsetAt(bracketPos)];
+            let match = matchBracket(text, pos2match(bracketPos));
+            let matchPos = match2pos(match);
+
+            // if matching bracket is *before* the current cursor, we're done
+            if (matchPos.isBefore(editor.selection.active))
+                break;
+
+            // we've found a match for bracketPos
+            if (match.line && match.cursor) {
+                openBracketPos = bracketPos;
+                closeBracketPos = matchPos;
+            }
+            // select next open paren (growing "outward")
+            bracketPos = openingBracketPos(document, document.positionAt(document.offsetAt(bracketPos)-1));
+        }
+        try {
+            // grow the "end" by 1 to include the final close paren
+            return new vscode.Range(openBracketPos, document.positionAt(document.offsetAt(closeBracketPos)+1));
+        } catch (error) {
+            return null;
+        }
     }
 };
 
@@ -135,7 +182,9 @@ let blinkRange = (range: vscode.Range) => {
 }
 
 let sendToProcess = (str: string) => {
-    _socket.write(crlf2lf(str).concat("\r\n"));
+    // get the string ready for sending over the nextwork
+    // make sure it's got the CRLF line ending Extempore expects
+    _socket.write(str.replace(/(\r\n|\n|\r)/gm, "\x0A").concat("\r\n"));
 }
 
 // start Extempore in a new Terminal
