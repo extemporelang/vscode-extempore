@@ -38,6 +38,11 @@
                 "configuration": "./language-configuration.json"
             }
         ],
+        "configurationDefaults": {
+            "[extempore]": {
+                "editor.formatOnType": true
+            }
+        },
         "grammars": [
             {
                 "language": "extempore",
