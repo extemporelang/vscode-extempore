@@ -132,11 +132,7 @@ let getRangeForEval = (): vscode.Range => {
         let openBracketPos, closeBracketPos;
         while (bracketPos) {
             let char = text[document.offsetAt(bracketPos)];
-            // the match-pos library expects 1-base line/char positions
-            let matchPos = matchBracket(text, {
-                line: bracketPos.line + 1,
-                cursor: bracketPos.character + 1
-            }, 'xtm');
+            let matchPos = matchBracket(text, bracketPos, 'xtm');
 
             // if matching bracket is *before* the current cursor, we're done
             if (matchPos.isBefore(editor.selection.active))
