@@ -33,15 +33,7 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand('extension.xtmhelp',
         () => opn('https://extemporelang.github.io/')));
 
-    // unless paredit or parinfer are active, use the extempore formatter
-    let enableFormatter = true;
-    for (const extensionId of ['clptn.code-paredit', 'shaunlebron.vscode-parinfer']) {
-        let ext = vscode.extensions.getExtension(extensionId);
-        if (ext && ext.isActive) {
-            enableFormatter = false;
-        }
-    }
-    if (enableFormatter) {
+    if (extempore.shouldUseFormatter()) {
         extempore.registerFormattingProvider(context);
     }
 
@@ -55,6 +47,17 @@ class Extempore {
 
     constructor() {
         // nothing to do here - start with "Extempore Start" command
+    }
+
+    // unless paredit or parinfer are active, use the extempore formatter
+    shouldUseFormatter() {
+        for (const extensionId of ['clptn.code-paredit', 'shaunlebron.vscode-parinfer']) {
+            let ext = vscode.extensions.getExtension(extensionId);
+            if (ext && ext.isActive) {
+                return false;
+            }
+        }
+        return true;
     }
 
     // utility functions
