@@ -78,6 +78,12 @@ after you've made your edits.
 
 - `0.0.4`: top-level eval, pretty blinking on eval, sharedir stuff
 
+- `0.0.5`:
+  - improved formatting (sets `editor.formatOnType: true` by default)
+  - use `EXTEMPORE_PATH` env var if set
+  - add `Extempore Help` command to jump to docs website
+  - plays nicer with paredit/parinfer
+
 ## Developer Notes
 
 To work on this VSCode extension (any help is appreciated!) you need to:
