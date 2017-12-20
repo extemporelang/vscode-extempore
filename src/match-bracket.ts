@@ -3,7 +3,7 @@
 //
 // modified by Ben Swift Dec 2017 (based on match-brackets v1.0.0)
 
-import { Range } from 'vscode';
+import { Position } from 'vscode';
 
 // from tracker.js
 
@@ -68,7 +68,7 @@ function getCommentPatterns(extension) {
  * @param {Object} bracketPos - position of the bracket
  *        e.g. {line: 2, cursor: 3}
  */
-export let matchBrackets = (code: string, bracketPos, extension) => {
+export let matchBracket = (code: string, bracketPos, extension) => {
   const QUOTATION_PAIRS = {
     '\"': '\"',
     '\'': '\'',
@@ -156,18 +156,12 @@ export let matchBrackets = (code: string, bracketPos, extension) => {
     }
 
     if (bracketStack.length === 0) {
-      return {
-        line: tracker.line,
-        cursor: tracker.cursor
-      };
+      return new Position(tracker.line - 1, tracker.cursor - 1);
     } else {
       tracker.advancePosition(char);
     }
   }
 
   // If for loop terminates without returning, the bracket is unmatched.
-  return {
-    line: null,
-    cursor: null
-  };
+  return null;
 };

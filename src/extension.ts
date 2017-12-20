@@ -10,15 +10,8 @@ import { env } from 'process';
 // npm deps
 const opn = require('opn');
 
-const matchBracket = require('match-bracket');
-interface BracketPosition {
-    line: number | null // line number
-    cursor: number | null // cursor number
-}
-// declare function matchBracket(code: string, bracketPos: BracketPosition, extension?: string): BracketPosition;
-
 import { xtmIndent } from './sexpr';
-import { TextEditorCursorStyle } from 'vscode';
+import { matchBracket } from './match-bracket';
 
 export function activate (context: vscode.ExtensionContext) {
 
@@ -125,15 +118,6 @@ let openingBracketPos = (document: vscode.TextDocument, pos: vscode.Position): v
     }
 }
 
-// helpers for converting between the match-bracket data structure and vscode.Range
-let match2pos = (match: BracketPosition): vscode.Position => {
-    return new vscode.Position(match.line-1, match.cursor-1);
-}
-
-let pos2match = (pos: vscode.Position): BracketPosition => {
-    return { line: pos.line + 1, cursor: pos.character + 1};
-}
-
 let getRangeForEval = (): vscode.Range => {
     let editor = vscode.window.activeTextEditor;
     let document = editor.document;
@@ -148,15 +132,14 @@ let getRangeForEval = (): vscode.Range => {
         let openBracketPos, closeBracketPos;
         while (bracketPos) {
             let char = text[document.offsetAt(bracketPos)];
-            let match = matchBracket(text, pos2match(bracketPos));
-            let matchPos = match2pos(match);
+            let matchPos = matchBracket(text, bracketPos, 'xtm');
 
             // if matching bracket is *before* the current cursor, we're done
             if (matchPos.isBefore(editor.selection.active))
                 break;
 
             // we've found a match for bracketPos
-            if (match.line && match.cursor) {
+            if (matchPos) {
                 openBracketPos = bracketPos;
                 closeBracketPos = matchPos;
             }
