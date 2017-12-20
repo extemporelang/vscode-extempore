@@ -68,7 +68,7 @@ function getCommentPatterns(extension) {
  * @param {Object} bracketPos - position of the bracket
  *        e.g. {line: 2, cursor: 3}
  */
-export let matchBracket = (code: string, bracketPos, extension) => {
+export let matchBracket = (code: string, bracketPos: {line: number, cursor: number}, extension: string) => {
   const QUOTATION_PAIRS = {
     '\"': '\"',
     '\'': '\'',
