@@ -119,6 +119,15 @@ let openingBracketPos = (pos: vscode.Position): vscode.Position => {
     }
 }
 
+let matchBracketRange = (text, pos: vscode.Position): vscode.Range => {
+    let matchPos = matchBracket(text, pos, 'xtm');
+    if (matchPos) {
+        return new vscode.Range(pos, matchPos);
+    } else {
+        return null;
+    }
+}
+
 let getRangeForEval = (): vscode.Range => {
     let editor = vscode.window.activeTextEditor;
     let document = editor.document;
@@ -129,28 +138,20 @@ let getRangeForEval = (): vscode.Range => {
     } else {
         // otherwise find the enclosing top-level s-expression
         let text = document.getText();
-        let bracketPos = openingBracketPos(document, document.positionAt(document.offsetAt(editor.selection.active)+1));
-        let openBracketPos, closeBracketPos;
+        let sexpRange = new vscode.Range(editor.selection.active, editor.selection.active);
+        let bracketPos = openingBracketPos(document.positionAt(document.offsetAt(sexpRange.start)+1));
         while (bracketPos) {
-            let char = text[document.offsetAt(bracketPos)];
-            let matchPos = matchBracket(text, bracketPos, 'xtm');
-
-            // if matching bracket is *before* the current cursor, we're done
-            if (matchPos.isBefore(editor.selection.active))
-                break;
-
-            // we've found a match for bracketPos
-            if (matchPos) {
-                openBracketPos = bracketPos;
-                closeBracketPos = matchPos;
+            let match = matchBracketRange(text, bracketPos);
+            if (match && match.contains(sexpRange)) {
+                sexpRange = match;
             }
             // select next open paren (growing "outward")
-            bracketPos = openingBracketPos(document, document.positionAt(document.offsetAt(bracketPos)-1));
+            bracketPos = openingBracketPos(document.positionAt(document.offsetAt(bracketPos)-1));
         }
-        try {
+        if (!sexpRange.isEmpty) {
             // grow the "end" by 1 to include the final close paren
-            return new vscode.Range(openBracketPos, document.positionAt(document.offsetAt(closeBracketPos)+1));
-        } catch (error) {
+            return new vscode.Range(sexpRange.start, document.positionAt(document.offsetAt(sexpRange.end)+1));
+        } else {
             return null;
         }
     }
