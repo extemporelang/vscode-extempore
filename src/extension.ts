@@ -6,9 +6,7 @@ import * as os from 'os';
 import { spawnSync } from 'child_process';
 import { setTimeout } from 'timers';
 import { env } from 'process';
-
-// npm deps
-const opn = require('opn');
+import opn = require('opn');
 
 import { xtmIndent } from './sexpr';
 import { matchBracket } from './match-bracket';
