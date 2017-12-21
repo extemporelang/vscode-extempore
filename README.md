@@ -84,6 +84,8 @@ after you've made your edits.
   - add `Extempore Help` command to jump to docs website
   - plays nicer with paredit/parinfer
 
+- `0.0.6`: more robust top-level eval (ignores brackets in strings/comments)
+
 ## Developer Notes
 
 To work on this VSCode extension (any help is appreciated!) you need to:
