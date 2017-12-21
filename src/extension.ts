@@ -107,7 +107,8 @@ let getExtemporePath = (): string => {
     }
 }
 
-let openingBracketPos = (document: vscode.TextDocument, pos: vscode.Position): vscode.Position => {
+let openingBracketPos = (pos: vscode.Position): vscode.Position => {
+    let document = vscode.window.activeTextEditor.document;
     let text = document.getText();
     let cursorPos = document.offsetAt(pos);
     let bracketOffset = text.lastIndexOf("(", cursorPos);
