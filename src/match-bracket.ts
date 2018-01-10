@@ -108,7 +108,7 @@ export let matchBracket = (code: string, bracketPosition: Position, extension: s
     for (var j = 0; j < COMMENT_PATTERNS.length; j++) {
       if (activeComment.length === 0) {
         commentPattern = COMMENT_PATTERNS[j].start;
-        candidate = trimmed.substring(i, i + commentPattern.length + 1);
+        candidate = trimmed.substring(i, i + commentPattern.length);
 
         if (candidate === commentPattern) {
           activeComment = COMMENT_PATTERNS[j];
@@ -116,7 +116,7 @@ export let matchBracket = (code: string, bracketPosition: Position, extension: s
         }
       } else {
         commentPattern = COMMENT_PATTERNS[j].end;
-        candidate = trimmed.substring(i, i + commentPattern.length + 1);
+        candidate = trimmed.substring(i, i + commentPattern.length);
 
         if (candidate === commentPattern) {
           activeComment = '';
@@ -148,6 +148,7 @@ export let matchBracket = (code: string, bracketPosition: Position, extension: s
     }
 
     if (activeQuotations.length > 0) {
+      tracker.advancePosition(char);
       continue;
     }
 
