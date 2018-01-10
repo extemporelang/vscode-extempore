@@ -77,7 +77,6 @@ export let matchBracket = (code: string, bracketPosition: Position, extension: s
   };
   const QUOTATION_PAIRS = {
     '\"': '\"',
-    '\'': '\'',
   };
   const BRACKET_PAIRS = {
     '(': ')'
