@@ -111,7 +111,6 @@ export let matchBracket = (code: string, bracketPosition: Position, extension: s
 
         if (candidate === commentPattern) {
           activeComment = COMMENT_PATTERNS[j];
-          tracker.moveCursor(candidate.length);
         }
       } else {
         commentPattern = COMMENT_PATTERNS[j].end;
@@ -119,15 +118,11 @@ export let matchBracket = (code: string, bracketPosition: Position, extension: s
 
         if (candidate === commentPattern) {
           activeComment = '';
-
-          if (COMMENT_PATTERNS[j].multiLine) {
-            tracker.moveCursor(candidate.length);
-          } else {
-            tracker.advancePosition(candidate);
-          }
         }
       }
     }
+
+    tracker.advancePosition(char);
 
     if (activeComment) {
       continue;
@@ -139,15 +134,12 @@ export let matchBracket = (code: string, bracketPosition: Position, extension: s
 
       if (latestQuotation === char) {
         activeQuotations.pop();
-        tracker.advancePosition(char);
       } else {
         activeQuotations.push(char);
-        tracker.advancePosition(char);
       }
     }
 
     if (activeQuotations.length > 0) {
-      tracker.advancePosition(char);
       continue;
     }
 
@@ -160,8 +152,6 @@ export let matchBracket = (code: string, bracketPosition: Position, extension: s
 
     if (bracketStack.length === 0) {
       return new Position(tracker.line - 1, tracker.cursor - 1);
-    } else {
-      tracker.advancePosition(char);
     }
   }
 
