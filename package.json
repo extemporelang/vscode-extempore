@@ -1,107 +1,107 @@
 {
-    "name": "vscode-extempore",
-    "displayName": "vscode-extempore",
-    "description": "Extempore language support for VSCode",
-    "version": "0.0.6",
-    "publisher": "extemporelang",
-    "engines": {
-        "vscode": "^1.18.0"
-    },
-    "license": "MIT",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/extemporelang/vscode-extempore"
-    },
-    "categories": [
-        "Languages"
-    ],
-    "activationEvents": [
-        "onCommand:extension.xtmstart",
-        "onCommand:extension.xtmconnect",
-        "onCommand:extension.xtmeval",
-        "onCommand:extension.xtmdisconnect",
-        "onCommand:extension.xtmhelp",
-        "onLanguage:extempore"
-    ],
-    "main": "./out/extension",
-    "contributes": {
-        "languages": [
-            {
-                "id": "extempore",
-                "aliases": [
-                    "Extempore",
-                    "extempore"
-                ],
-                "extensions": [
-                    ".xtm"
-                ],
-                "configuration": "./language-configuration.json"
-            }
-        ],
-        "configurationDefaults": {
-            "[extempore]": {
-                "editor.formatOnType": true
-            }
-        },
-        "grammars": [
-            {
-                "language": "extempore",
-                "scopeName": "source.extempore",
-                "path": "./syntaxes/extempore.tmLanguage.json"
-            }
-        ],
-        "keybindings": [
-            {
-                "key": "ctrl+enter",
-                "mac": "cmd+enter",
-                "command": "extension.xtmeval",
-                "when": "editorTextFocus"
-            }
-        ],
-        "snippets": [
-            {
-                "language": "extempore",
-                "path": "./snippets/extempore.json"
-            }
-        ],
-        "commands": [
-            {
-                "command": "extension.xtmstart",
-                "title": "Extempore Start"
-            },
-            {
-                "command": "extension.xtmconnect",
-                "title": "Extempore Connect"
-            },
-            {
-                "command": "extension.xtmeval",
-                "title": "Extempore Eval"
-            },
-            {
-                "command": "extension.xtmdisconnect",
-                "title": "Extempore Disconnect"
-            },
-            {
-                "command": "extension.xtmhelp",
-                "title": "Extempore Help"
-            }
-        ]
-    },
-    "scripts": {
-        "vscode:prepublish": "npm run compile",
-        "compile": "tsc -p ./",
-        "watch": "tsc -watch -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install",
-        "test": "npm run compile && node ./node_modules/vscode/bin/test"
-    },
-    "devDependencies": {
-        "typescript": "^2.6.1",
-        "vscode": "^1.1.6",
-        "@types/node": "^7.0.43",
-        "@types/mocha": "^2.2.42"
-    },
-    "dependencies": {
-        "opn": "^5.1.0",
-        "match-bracket": "1.0.0"
-    }
+	"name": "vscode-extempore",
+	"displayName": "vscode-extempore",
+	"description": "Extempore language support for VSCode",
+	"version": "0.0.7",
+	"publisher": "extemporelang",
+	"engines": {
+		"vscode": "^1.18.0"
+	},
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/extemporelang/vscode-extempore"
+	},
+	"categories": [
+		"Languages"
+	],
+	"activationEvents": [
+		"onCommand:extension.xtmstart",
+		"onCommand:extension.xtmconnect",
+		"onCommand:extension.xtmeval",
+		"onCommand:extension.xtmdisconnect",
+		"onCommand:extension.xtmhelp",
+		"onLanguage:extempore"
+	],
+	"main": "./out/extension",
+	"contributes": {
+		"languages": [
+			{
+				"id": "extempore",
+				"aliases": [
+					"Extempore",
+					"extempore"
+				],
+				"extensions": [
+					".xtm"
+				],
+				"configuration": "./language-configuration.json"
+			}
+		],
+		"configurationDefaults": {
+			"[extempore]": {
+				"editor.formatOnType": true
+			}
+		},
+		"grammars": [
+			{
+				"language": "extempore",
+				"scopeName": "source.extempore",
+				"path": "./syntaxes/extempore.tmLanguage.json"
+			}
+		],
+		"keybindings": [
+			{
+				"key": "ctrl+enter",
+				"mac": "cmd+enter",
+				"command": "extension.xtmeval",
+				"when": "editorTextFocus"
+			}
+		],
+		"snippets": [
+			{
+				"language": "extempore",
+				"path": "./snippets/extempore.json"
+			}
+		],
+		"commands": [
+			{
+				"command": "extension.xtmstart",
+				"title": "Extempore Start"
+			},
+			{
+				"command": "extension.xtmconnect",
+				"title": "Extempore Connect"
+			},
+			{
+				"command": "extension.xtmeval",
+				"title": "Extempore Eval"
+			},
+			{
+				"command": "extension.xtmdisconnect",
+				"title": "Extempore Disconnect"
+			},
+			{
+				"command": "extension.xtmhelp",
+				"title": "Extempore Help"
+			}
+		]
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"postinstall": "node ./node_modules/vscode/bin/install",
+		"test": "npm run compile && node ./node_modules/vscode/bin/test"
+	},
+	"devDependencies": {
+		"typescript": "^2.6.1",
+		"vscode": "^1.1.6",
+		"@types/node": "^7.0.43",
+		"@types/mocha": "^2.2.42"
+	},
+	"dependencies": {
+		"opn": "^5.1.0",
+		"match-bracket": "1.0.0"
+	}
 }

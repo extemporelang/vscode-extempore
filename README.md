@@ -86,6 +86,8 @@ after you've made your edits.
 
 - `0.0.6`: more robust top-level eval (ignores brackets in strings/comments)
 
+- `0.0.7`: more robust top-level evel
+
 ## Developer Notes
 
 To work on this VSCode extension (any help is appreciated!) you need to:
