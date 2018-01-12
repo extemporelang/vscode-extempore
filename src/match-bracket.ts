@@ -68,7 +68,7 @@ function getCommentPatterns(extension) {
  * @param {Object} bracketPos - position of the bracket
  *        e.g. {line: 2, cursor: 3}
  */
-export let matchBracket = (code: string, bracketPosition: Position, extension: string) => {
+export let matchBracket = (code: string, bracketPosition: Position, extension: string, backward: boolean = false) => {
   // workaround for the fact that match-brackets lib uses 1-based indexing
   // this is also handled when returning from this funciton (TODO fix properly)
   let bracketPos = {
@@ -100,24 +100,29 @@ export let matchBracket = (code: string, bracketPosition: Position, extension: s
   var activeQuotations = [];
   var commentPattern, candidate;
 
+  //console.log(`TRIMMED:\n'${trimmed}'\n`);
+
   for (var i = 0; i < trimmed.length; i++) {
     var char = trimmed[i];
+    //console.log(`char: ${char} at ${i} quotes: ${activeQuotations.length} comment: ${activeComment} brackstack: ${bracketStack.length} `);
 
     // Check for comments
-    for (var j = 0; j < COMMENT_PATTERNS.length; j++) {
-      if (activeComment.length === 0) {
-        commentPattern = COMMENT_PATTERNS[j].start;
-        candidate = trimmed.substring(i, i + commentPattern.length);
+    if (activeQuotations.length <= 0) { // don't look for comments inside strings!
+      for (var j = 0; j < COMMENT_PATTERNS.length; j++) {
+        if (activeComment.length === 0) {
+          commentPattern = COMMENT_PATTERNS[j].start;
+          candidate = trimmed.substring(i, i + commentPattern.length);
 
-        if (candidate === commentPattern) {
-          activeComment = COMMENT_PATTERNS[j];
-        }
-      } else {
-        commentPattern = COMMENT_PATTERNS[j].end;
-        candidate = trimmed.substring(i, i + commentPattern.length);
+          if (candidate === commentPattern) {
+            activeComment = COMMENT_PATTERNS[j];
+          }
+        } else {
+          commentPattern = COMMENT_PATTERNS[j].end;
+          candidate = trimmed.substring(i, i + commentPattern.length);
 
-        if (candidate === commentPattern) {
-          activeComment = '';
+          if (candidate === commentPattern) {
+            activeComment = '';
+          }
         }
       }
     }
@@ -151,6 +156,8 @@ export let matchBracket = (code: string, bracketPosition: Position, extension: s
     }
 
     if (bracketStack.length === 0) {
+      let res = new Position(tracker.line - 1, tracker.cursor - 1);
+      console.log(`returning: ${JSON.stringify(res)}`);
       return new Position(tracker.line - 1, tracker.cursor - 1);
     }
   }
