@@ -105,17 +105,76 @@ let getExtemporePath = (): string => {
     }
 }
 
+// let openingBracketPos = (pos: vscode.Position): vscode.Position => {
+//     let document = vscode.window.activeTextEditor.document;
+//     let text = document.getText();
+//     let cursorPos = document.offsetAt(pos);
+//     let bracketOffset = text.lastIndexOf("(", cursorPos);
+//     if (bracketOffset === -1) {
+//         return null; // we're not inside any bracket pair
+//     } else {
+//         return document.positionAt(bracketOffset);
+//     }
+// }
+
+//
+// this is a temporary solution - it is certainly not foolproof.
+// placeholder until (me, you, someone), has time to fix it properly. 
+// 
 let openingBracketPos = (pos: vscode.Position): vscode.Position => {
+    let document = vscode.window.activeTextEditor.document;
+    let cnt = 0;
+    while (true && cnt < 10) {
+        cnt++;
+        let res = openingBracketPosHelper(pos);
+        // console.log(`result ${res} for cnt ${cnt}`);
+        if (res === null) return null;
+        if (res < 0) {
+            pos = document.positionAt(res * -1);
+            continue;
+        }
+        return document.positionAt(res);
+    }
+    return null;
+}   
+
+let openingBracketPosHelper = (pos: vscode.Position): number => {
     let document = vscode.window.activeTextEditor.document;
     let text = document.getText();
     let cursorPos = document.offsetAt(pos);
+    // find open (
     let bracketOffset = text.lastIndexOf("(", cursorPos);
-    if (bracketOffset === -1) {
-        return null; // we're not inside any bracket pair
+    if (bracketOffset === -1) return null; // not inside any bracket pair
+
+    // this is a temporary (i.e. not foolproof) fix for when an openingBrace falls inside a string
+    // although the next few lines seem redundant this is probably faster than using regexps
+    let quoteOffsetBack = text.lastIndexOf("\"", bracketOffset);
+    let quoteOffsetForward = text.indexOf("\"", bracketOffset);
+    if (quoteOffsetForward < 0) quoteOffsetForward = Number.MAX_VALUE; // failing to find forward quote should result in large positive result
+    let openBracketOffsetBack = text.lastIndexOf("(", bracketOffset-1);
+    let openBracketOffsetForward = text.indexOf("(", bracketOffset+1);
+    let closingBracketOffsetBack = text.lastIndexOf(")", bracketOffset);
+    let closingBracketOffsetForward = text.indexOf(")", bracketOffset);
+    // does another bracket (going backards) arrive before a string quote?
+    let back = (quoteOffsetBack <= openBracketOffsetBack) && (quoteOffsetBack <= closingBracketOffsetBack);
+    // does another bracket (going forwards) arrive before a string quote?
+    let forward = (quoteOffsetForward >= openBracketOffsetForward) && (quoteOffsetForward >= closingBracketOffsetForward);
+    /*
+    console.log(`\nbracketOffset = ${bracketOffset}`);
+    console.log(`quoteOffsetBack = ${quoteOffsetBack}`);
+    console.log(`quoteOffsetForward = ${quoteOffsetForward}`);
+    console.log(`openBracketOffsetBack = ${openBracketOffsetBack}`);
+    console.log(`openBracketOffsetForward = ${openBracketOffsetForward}`);
+    console.log(`closingBracketOffsetBack = ${closingBracketOffsetBack}`);
+    console.log(`closingBracketOffsetForward = ${closingBracketOffsetForward}`);
+    */
+    if (!back && !forward) {
+        return -1 * openBracketOffsetBack;
     } else {
-        return document.positionAt(bracketOffset);
+        return bracketOffset;
     }
 }
+
 
 let matchBracketRange = (text, pos: vscode.Position): vscode.Range => {
     let matchPos = matchBracket(text, pos, 'xtm');
