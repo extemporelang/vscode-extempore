@@ -8,8 +8,7 @@ import { setTimeout } from 'timers';
 import { env } from 'process';
 import opn = require('opn');
 
-import { xtmIndent } from './sexpr';
-import { matchBracket } from './match-bracket';
+import { xtmIndent, xtmTopLevelSexpr, xtmGetBlock } from './sexpr';
 
 export function activate (context: vscode.ExtensionContext) {
 
@@ -21,7 +20,23 @@ export function activate (context: vscode.ExtensionContext) {
 
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.xtmeval', () => {
-            let evalRange = getRangeForEval();
+            let document = vscode.window.activeTextEditor.document;
+            let editor = vscode.window.activeTextEditor;
+            let evalRange: vscode.Range;
+
+            if (!editor.selection.isEmpty) {
+                // if there's a selection active, use that
+                evalRange = editor.selection;
+            } else {       
+                let pos = document.offsetAt(editor.selection.active);
+                let xtmBlock: [number, number, string] = xtmGetBlock(document.getText(), pos);
+                //console.log(`xtmblk: '${xtmBlock[2]}'`);
+                let xtmExpr = xtmTopLevelSexpr(xtmBlock[2], pos - xtmBlock[0]);
+                //console.log(`xtmexp: ${JSON.stringify(xtmExpr)}`);
+                let start = document.positionAt(xtmExpr[0] + xtmBlock[0]);
+                let end = document.positionAt(xtmExpr[1] + 1 + xtmBlock[0]);
+                evalRange = new vscode.Range(start, end);
+            }    
             if (evalRange) {
                 try {
                     sendToProcess(vscode.window.activeTextEditor.document.getText(evalRange));
@@ -104,115 +119,6 @@ let getExtemporePath = (): string => {
         return undefined;
     }
 }
-
-// let openingBracketPos = (pos: vscode.Position): vscode.Position => {
-//     let document = vscode.window.activeTextEditor.document;
-//     let text = document.getText();
-//     let cursorPos = document.offsetAt(pos);
-//     let bracketOffset = text.lastIndexOf("(", cursorPos);
-//     if (bracketOffset === -1) {
-//         return null; // we're not inside any bracket pair
-//     } else {
-//         return document.positionAt(bracketOffset);
-//     }
-// }
-
-//
-// this is a temporary solution - it is certainly not foolproof.
-// placeholder until (me, you, someone), has time to fix it properly. 
-// 
-let openingBracketPos = (pos: vscode.Position): vscode.Position => {
-    let document = vscode.window.activeTextEditor.document;
-    let cnt = 0;
-    while (true && cnt < 10) {
-        cnt++;
-        let res = openingBracketPosHelper(pos);
-        // console.log(`result ${res} for cnt ${cnt}`);
-        if (res === null) return null;
-        if (res < 0) {
-            pos = document.positionAt(res * -1);
-            continue;
-        }
-        return document.positionAt(res);
-    }
-    return null;
-}   
-
-let openingBracketPosHelper = (pos: vscode.Position): number => {
-    let document = vscode.window.activeTextEditor.document;
-    let text = document.getText();
-    let cursorPos = document.offsetAt(pos);
-    // find open (
-    let bracketOffset = text.lastIndexOf("(", cursorPos);
-    if (bracketOffset === -1) return null; // not inside any bracket pair
-
-    // this is a temporary (i.e. not foolproof) fix for when an openingBrace falls inside a string
-    // although the next few lines seem redundant this is probably faster than using regexps
-    let quoteOffsetBack = text.lastIndexOf("\"", bracketOffset);
-    let quoteOffsetForward = text.indexOf("\"", bracketOffset);
-    if (quoteOffsetForward < 0) quoteOffsetForward = Number.MAX_VALUE; // failing to find forward quote should result in large positive result
-    let openBracketOffsetBack = text.lastIndexOf("(", bracketOffset-1);
-    let openBracketOffsetForward = text.indexOf("(", bracketOffset+1);
-    let closingBracketOffsetBack = text.lastIndexOf(")", bracketOffset);
-    let closingBracketOffsetForward = text.indexOf(")", bracketOffset);
-    // does another bracket (going backards) arrive before a string quote?
-    let back = (quoteOffsetBack <= openBracketOffsetBack) && (quoteOffsetBack <= closingBracketOffsetBack);
-    // does another bracket (going forwards) arrive before a string quote?
-    let forward = (quoteOffsetForward >= openBracketOffsetForward) && (quoteOffsetForward >= closingBracketOffsetForward);
-    /*
-    console.log(`\nbracketOffset = ${bracketOffset}`);
-    console.log(`quoteOffsetBack = ${quoteOffsetBack}`);
-    console.log(`quoteOffsetForward = ${quoteOffsetForward}`);
-    console.log(`openBracketOffsetBack = ${openBracketOffsetBack}`);
-    console.log(`openBracketOffsetForward = ${openBracketOffsetForward}`);
-    console.log(`closingBracketOffsetBack = ${closingBracketOffsetBack}`);
-    console.log(`closingBracketOffsetForward = ${closingBracketOffsetForward}`);
-    */
-    if (!back && !forward) {
-        return -1 * openBracketOffsetBack;
-    } else {
-        return bracketOffset;
-    }
-}
-
-
-let matchBracketRange = (text, pos: vscode.Position): vscode.Range => {
-    let matchPos = matchBracket(text, pos, 'xtm');
-    if (matchPos) {
-        return new vscode.Range(pos, matchPos);
-    } else {
-        return null;
-    }
-}
-
-let getRangeForEval = (): vscode.Range => {
-    let editor = vscode.window.activeTextEditor;
-    let document = editor.document;
-
-    if (!editor.selection.isEmpty) {
-        // if there's a selection active, use that
-        return editor.selection;
-    } else {
-        // otherwise find the enclosing top-level s-expression
-        let text = document.getText();
-        let sexpRange = new vscode.Range(editor.selection.active, editor.selection.active);
-        let bracketPos = openingBracketPos(document.positionAt(document.offsetAt(sexpRange.start)+1));
-        while (bracketPos) {
-            let match = matchBracketRange(text, bracketPos);
-            if (match && match.contains(sexpRange)) {
-                sexpRange = match;
-            }
-            // select next open paren (growing "outward")
-            bracketPos = openingBracketPos(document.positionAt(document.offsetAt(bracketPos)-1));
-        }
-        if (!sexpRange.isEmpty) {
-            // grow the "end" by 1 to include the final close paren
-            return new vscode.Range(sexpRange.start, document.positionAt(document.offsetAt(sexpRange.end)+1));
-        } else {
-            return null;
-        }
-    }
-};
 
 let blinkRange = (range: vscode.Range) => {
     let decoration = vscode.window.createTextEditorDecorationType({

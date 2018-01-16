@@ -88,6 +88,8 @@ after you've made your edits.
 
 - `0.0.7`: more robust top-level evel
 
+- `0.0.8`: actually robust top-level eval (honestly ;)
+
 ## Developer Notes
 
 To work on this VSCode extension (any help is appreciated!) you need to:
