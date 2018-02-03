@@ -90,6 +90,12 @@ after you've made your edits.
 
 - `0.0.8`: actually robust top-level eval (honestly ;)
 
+- `0.0.9`: 
+  - fixed some indenting problems
+  - added selection formatting
+  - added snippets for play, mplay, loop, eloop, mloop, mcc
+
+
 ## Developer Notes
 
 To work on this VSCode extension (any help is appreciated!) you need to:

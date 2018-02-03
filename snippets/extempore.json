@@ -19,5 +19,64 @@
             "($1 (*metro* 'get-beat 4) 1/4)"
         ],
         "description": "Temporal Recursion"
+    },
+    "Play": {
+        "prefix": "play",
+        "body": [
+            "(play ${1:inst} ${2:pitch} ${3:vol} ${4:dur})"
+        ],
+        "description": "Play"
+    },
+    "Midi Play": {
+        "prefix": "mplay",
+        "body": [
+            "(mplay ${1:*mout*} ${2:pitch} ${3:vol} ${4:dur} ${5:chan})"
+        ],
+        "description": "Midi Play"
+    },
+    "Looper": {
+        "prefix": "loop",
+        "body": [
+            "(:> ${1:name} ${2:4} ${3:0}",
+            "    (begin ",
+            "      ${5:(println @1)}",
+            "      #t)",
+            "    `(${4:60 63 67 70}))"
+        ],
+        "description": "Looper"
+    },
+    "Mapped Loop for eval": {
+        "prefix": "eloop",
+        "body": [
+            "(:> ${1:name} ${2:8} ${3:0}",
+            "    (begin",
+            "      (map (lambda (p)",
+            "             ${5:(println p)})",
+            "           (map (lambda (x) (eval x)) @1))",
+            "      #t)",
+            "    `(#(${4:60 63 67})))"
+        ],
+        "description": "Mapped Looper with evaluation"
+    },
+    "Mapped Loop": {
+        "prefix": "mloop",
+        "body": [
+            "(:> ${1:name} ${2:8} ${3:0}",
+            "    (begin",
+            "      (map (lambda (p)",
+            "             ${5:(println p)})",
+            "           @1)",
+            "      #t)",
+            "    `(#(${4:60 63 67})))"
+        ],
+        "description": "Mapped Looper"
+    },
+    "Midi Control Change": {
+        "prefix": "mcc",
+        "body": [
+            "(mcc ${1:*mout*} ${2:CC} ${3:value} ${4:chan})"
+        ],
+        "description": "Midi Control Change"
     }
+
 }

@@ -167,6 +167,7 @@ let inSexpr = (str: string, pos: number): [number, number] => {
     let open = findOpenParen(str, pos);
     let close = findCloseParen(str, open);
     //console.log(`insexpr ${np} ${open}:${close}`);
+    //console.log(`insexpr ${np} ${open}:${close} - ${str.substring((open < 0) ? 0 : open, (close<0) ? str.length : close)}`);
     return [open, close];
 }
 
@@ -201,35 +202,39 @@ export let xtmTopLevelSexpr = (strin: string, pos: number): [number,number] => {
 // get whitespace count from the start of the 'line' that the sexpr starts on
 // note that this is whitespace amount from the *start* of line
 // (i.e. the sexpr start may not be the first sexpr to start on that line)
-let lineIndentAmount = (strin: string, sexpr: [number,number]): number => {
-    let lineStart = strin.lastIndexOf("\n", sexpr[0]);
-    let lineEnd = strin.indexOf("\n", sexpr[0]);
-    let lineStr = strin.substring(lineStart, lineEnd);
-    let match = lineStr.match("^\\s*"); // indent on FIRST LINE
-    let indent = (match.length) ? match[0].length - 1 : 0;
-    return indent;
-}
+// let lineIndentAmount = (strin: string, sexpr: [number,number]): number => {
+//     let lineStart = strin.lastIndexOf("\n", sexpr[0]);
+//     let lineEnd = strin.indexOf("\n", sexpr[0]);
+//     let lineStr = strin.substring(lineStart, lineEnd);
+//     let match = lineStr.match("^\\s*"); // indent on FIRST LINE
+//     let indent = (match.length) ? match[0].length - 1 : 0;
+//     return indent;
+// }
 
 let sexprArgPos = (strin: string, sexpr: [number,number]): number => {
     let lineStart = strin.lastIndexOf("\n", sexpr[0]);
     let lineEnd = strin.indexOf("\n", sexpr[0]);
     let lineStr = strin.substring(lineStart, lineEnd);
     let name = sexprName(strin, sexpr);
-    console.log("myname: " + name);
+    //console.log("myname: " + name);
     let indent = lineStr.indexOf(name) + name.length;
-    if (name.startsWith("(")) indent = indent - (name.length + 1);
+    if (name.match("^[`',@#(]")) indent = indent - (name.length + 1);
+    //if (name.startsWith("(")) indent = indent - (name.length + 1);
+    //if (name.startsWith("#(")) indent = indent - (name.length + 1);
     return indent;
 }
 
-let NamedIndentsShort = ["let", "define", "lambda", "bind-func", "letz"];
+let NamedIndentsShort = ["let", "define", "lambda", "bind-func", "letz", "begin", ":>", ":|"];
 
 // indent amount
-let sexprIndent = (strin: string, sexpr: [number,number]): number => {
+let sexprIndent = (strin: string, sexpr: [number, number]): number => {
     if (sexpr[0] === -1 || sexpr[1] !== -1) return 0; //indent;
     let name = sexprName(strin, sexpr);
     let shortIndent = (NamedIndentsShort.indexOf(name) > -1) ? true : false;
-    let indent = lineIndentAmount(strin, sexpr);
-    if (shortIndent) return indent + 2;
+    //let indent = lineIndentAmount(strin, sexpr);
+    let lineStart = strin.lastIndexOf("\n", sexpr[0]);
+    let indent = sexpr[0] - ((lineStart > 0) ? lineStart : 0);
+    if (shortIndent) return indent + 1;
     return sexprArgPos(strin,sexpr);
 }
 

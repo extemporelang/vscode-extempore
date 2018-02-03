@@ -17,7 +17,7 @@ export function activate (context: vscode.ExtensionContext) {
 
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.xtmconnect', () => connectCommand()));
-
+    
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.xtmeval', () => {
             let document = vscode.window.activeTextEditor.document;
@@ -77,6 +77,32 @@ export function activate (context: vscode.ExtensionContext) {
             }
         }, '\n');
         context.subscriptions.push(indentDisposable);
+
+        let indentDisposable2 = vscode.languages.registerDocumentRangeFormattingEditProvider('extempore', {
+            provideDocumentRangeFormattingEdits(document: vscode.TextDocument, range: vscode.Range, options: vscode.FormattingOptions, token: vscode.CancellationToken): vscode.ProviderResult<vscode.TextEdit[]> {
+                let line = range.start.line;
+                let line_end = range.end.line;
+                let lines1000 = new vscode.Position((line - 1000 < 0) ? 0 : line - 1000, 0);
+                let prevLines = new vscode.Range(lines1000, range.start);
+                let s1 = document.getText(prevLines); 
+                let indent = xtmIndent(s1);    
+                let newstr = "";
+                
+                for (; line < line_end; line++) {
+                    let pos = new vscode.Position(line, 0);
+                    let pos2 = new vscode.Position(line+1, 0);
+                    let linerng = new vscode.Range(pos, pos2);
+                    let linestr = document.getText(linerng).trim();
+                    newstr += ' '.repeat(indent) + linestr + '\n';
+                    indent = xtmIndent(newstr);    
+                }
+                vscode.window.activeTextEditor.edit((edit) => {
+                    edit.replace(range, newstr);
+                });
+                return null;
+            }
+        }); 
+        context.subscriptions.push(indentDisposable2);
     }
 }
 
