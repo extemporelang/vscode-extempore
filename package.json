@@ -55,7 +55,7 @@
 				"key": "ctrl+enter",
 				"mac": "cmd+enter",
 				"command": "extension.xtmeval",
-				"when": "editorTextFocus"
+				"when": "editorTextFocus && editorLangId == extempore"
 			}
 		],
 		"snippets": [
