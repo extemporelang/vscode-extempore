@@ -19,6 +19,9 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand('extension.xtmconnect', () => connectCommand()));
 
     context.subscriptions.push(
+        vscode.commands.registerCommand('extension.xtmconnectdefault', () => connectDefaultCommand()));
+
+    context.subscriptions.push(
         vscode.commands.registerCommand('extension.xtmeval', () => {
             let document = vscode.window.activeTextEditor.document;
             let editor = vscode.window.activeTextEditor;
@@ -187,12 +190,7 @@ let startExtemporeInTerminal = () => {
     };
 };
 
-// connect to extempore
-let connectCommand = async () => {
-    let hostname: string = await vscode.window.showInputBox({ prompt: 'Hostname', value: 'localhost' });
-    let portString: string = await vscode.window.showInputBox({ prompt: 'Port number', value: '7099' });
-    let port: number = parseInt(portString);
-
+let connectExtempore = (hostname: string, port: number) => {
     // create Extempore socket
     _socket = new net.Socket();
     _socket.setEncoding('ascii');
@@ -211,4 +209,18 @@ let connectCommand = async () => {
     _socket.on('error', (err) => {
         vscode.window.showErrorMessage(`Extempore: socket connection error "${err.message}"`);
     })
+}
+
+// connect to extempore with defaults
+let connectDefaultCommand = () => {
+    const config = vscode.workspace.getConfiguration("extempore");
+    connectExtempore(config.get("hostname"), config.get("port"));
+};
+
+// connect to extempore
+let connectCommand = async () => {
+    let hostname: string = await vscode.window.showInputBox({ prompt: 'Hostname', value: 'localhost' });
+    let portString: string = await vscode.window.showInputBox({ prompt: 'Port number', value: '7099' });
+    let port: number = parseInt(portString);
+    connectExtempore(hostname, port);
 };
