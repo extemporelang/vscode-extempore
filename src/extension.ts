@@ -10,14 +10,14 @@ import opn = require('opn');
 
 import { xtmIndent, xtmTopLevelSexpr, xtmGetBlock } from './sexpr';
 
-export function activate (context: vscode.ExtensionContext) {
+export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.xtmstart', () => startExtemporeInTerminal()));
 
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.xtmconnect', () => connectCommand()));
-    
+
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.xtmeval', () => {
             let document = vscode.window.activeTextEditor.document;
@@ -27,7 +27,7 @@ export function activate (context: vscode.ExtensionContext) {
             if (!editor.selection.isEmpty) {
                 // if there's a selection active, use that
                 evalRange = editor.selection;
-            } else {       
+            } else {
                 let pos = document.offsetAt(editor.selection.active);
                 let xtmBlock: [number, number, string] = xtmGetBlock(document.getText(), pos);
                 //console.log(`xtmblk: '${xtmBlock[2]}'`);
@@ -36,7 +36,7 @@ export function activate (context: vscode.ExtensionContext) {
                 let start = document.positionAt(xtmExpr[0] + xtmBlock[0]);
                 let end = document.positionAt(xtmExpr[1] + 1 + xtmBlock[0]);
                 evalRange = new vscode.Range(start, end);
-            }    
+            }
             if (evalRange) {
                 try {
                     sendToProcess(vscode.window.activeTextEditor.document.getText(evalRange));
@@ -50,7 +50,7 @@ export function activate (context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.xtmdisconnect',
             () => _socket.destroy()));
-    
+
     // eventually the help command should do more than just jump to
     // the main Extempore page but this is better than nothing for now
     context.subscriptions.push(
@@ -65,13 +65,13 @@ export function activate (context: vscode.ExtensionContext) {
                 let txtstr = document.getText(backRange);
                 let indent = xtmIndent(txtstr);
 
-                vscode.window.activeTextEditor.edit((edit)=> {
+                vscode.window.activeTextEditor.edit((edit) => {
                     let pos = vscode.window.activeTextEditor.selection.active;
                     let startOfLine = new vscode.Position(pos.line, 0);
                     let sol = new vscode.Range(startOfLine, pos);
                     edit.delete(sol);
                     let emptyStr = ' '.repeat(indent);
-                    edit.insert(startOfLine,emptyStr);
+                    edit.insert(startOfLine, emptyStr);
                 });
                 return null;
             }
@@ -84,29 +84,29 @@ export function activate (context: vscode.ExtensionContext) {
                 let line_end = range.end.line;
                 let lines1000 = new vscode.Position((line - 1000 < 0) ? 0 : line - 1000, 0);
                 let prevLines = new vscode.Range(lines1000, range.start);
-                let s1 = document.getText(prevLines); 
-                let indent = xtmIndent(s1);    
+                let s1 = document.getText(prevLines);
+                let indent = xtmIndent(s1);
                 let newstr = "";
-                
+
                 for (; line < line_end; line++) {
                     let pos = new vscode.Position(line, 0);
-                    let pos2 = new vscode.Position(line+1, 0);
+                    let pos2 = new vscode.Position(line + 1, 0);
                     let linerng = new vscode.Range(pos, pos2);
                     let linestr = document.getText(linerng).trim();
                     newstr += ' '.repeat(indent) + linestr + '\n';
-                    indent = xtmIndent(newstr);    
+                    indent = xtmIndent(newstr);
                 }
                 vscode.window.activeTextEditor.edit((edit) => {
                     edit.replace(range, newstr);
                 });
                 return null;
             }
-        }); 
+        });
         context.subscriptions.push(indentDisposable2);
     }
 }
 
-export function dispose () {
+export function dispose() {
     _socket.destroy();
     _terminal.dispose();
 }
@@ -171,7 +171,7 @@ let startExtemporeInTerminal = () => {
     let sharedir = getExtemporePath();
 
     if (!sharedir) {
-        vscode.window.showErrorMessage("Extempore: can't find extempore folder.");
+        vscode.window.showErrorMessage("Extempore: can't find extempore folder. Set extempore.sharedir in the VSCode settings.");
         return;
     }
 

@@ -38,6 +38,20 @@
 				"configuration": "./language-configuration.json"
 			}
 		],
+		"configuration": {
+			"type": "object",
+			"title": "Extempore configuration",
+			"properties": {
+				"extempore.sharedir": {
+					"type": [
+						"string",
+						"null"
+					],
+					"default": null,
+					"description": "Location of the extempore share directory"
+				}
+			}
+		},
 		"configurationDefaults": {
 			"[extempore]": {
 				"editor.formatOnType": true
