@@ -49,6 +49,16 @@
 					],
 					"default": null,
 					"description": "Location of the extempore share directory"
+				},
+				"extempore.hostname": {
+					"type": "string",
+					"default": "localhost",
+					"description": "Default server hostname"
+				},
+				"extempore.port": {
+					"type": "integer",
+					"default": 7099,
+					"description": "Default server port"
 				}
 			}
 		},
@@ -81,23 +91,27 @@
 		"commands": [
 			{
 				"command": "extension.xtmstart",
-				"title": "Extempore Start"
+				"title": "Extempore: Start"
 			},
 			{
 				"command": "extension.xtmconnect",
-				"title": "Extempore Connect"
+				"title": "Extempore: Connect"
+			},
+			{
+				"command": "extension.xtmconnectdefault",
+				"title": "Extempore: Connect To Default"
 			},
 			{
 				"command": "extension.xtmeval",
-				"title": "Extempore Eval"
+				"title": "Extempore: Eval"
 			},
 			{
 				"command": "extension.xtmdisconnect",
-				"title": "Extempore Disconnect"
+				"title": "Extempore: Disconnect"
 			},
 			{
 				"command": "extension.xtmhelp",
-				"title": "Extempore Help"
+				"title": "Extempore: Help"
 			}
 		]
 	},
