@@ -180,14 +180,8 @@ let startExtemporeInTerminal = () => {
 
     _terminal = vscode.window.createTerminal("Extempore");
     _terminal.show(true); // show, but don't steal focus
-
-    if (os.platform() === 'win32') {
-        _terminal.sendText(`cd ${sharedir}`);
-        _terminal.sendText(`./extempore.exe`);
-    } else {
-        _terminal.sendText(`cd ${sharedir}`);
-        _terminal.sendText(isExtemporeOnSystemPath() ? "extempore" : "./extempore");
-    };
+    _terminal.sendText(`cd ${sharedir}`);
+    _terminal.sendText(isExtemporeOnSystemPath() ? "extempore" : "./extempore");
 };
 
 let connectExtempore = (hostname: string, port: number) => {
