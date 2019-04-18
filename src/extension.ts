@@ -182,7 +182,7 @@ let startExtemporeInTerminal = () => {
     _terminal.show(true); // show, but don't steal focus
 
     if (os.platform() === 'win32') {
-        _terminal.sendText(`cwd ${sharedir}`);
+        _terminal.sendText(`cd ${sharedir}`);
         _terminal.sendText(`./extempore.exe`);
     } else {
         _terminal.sendText(`cd ${sharedir}`);
