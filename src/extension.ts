@@ -91,12 +91,15 @@ export function activate(context: vscode.ExtensionContext) {
                 let indent = xtmIndent(s1);
                 let newstr = "";
 
-                for (; line < line_end; line++) {
+                for (; line <= line_end; line++) {
                     let pos = new vscode.Position(line, 0);
                     let pos2 = new vscode.Position(line + 1, 0);
                     let linerng = new vscode.Range(pos, pos2);
                     let linestr = document.getText(linerng).trim();
-                    newstr += ' '.repeat(indent) + linestr + '\n';
+                    newstr += ' '.repeat(indent) + linestr;
+                    if (line < line_end) {
+                        newstr += '\n';
+                    }
                     indent = xtmIndent(newstr);
                 }
                 vscode.window.activeTextEditor.edit((edit) => {
