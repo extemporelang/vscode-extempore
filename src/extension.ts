@@ -19,7 +19,7 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand('extension.xtmconnect', () => connectCommand()));
 
     context.subscriptions.push(
-        vscode.commands.registerCommand('extension.xtmconnectdefault', () => connectDefaultCommand()));
+        vscode.commands.registerCommand('extension.xtmconnecthostport', () => connectToHostPortCommand()));
 
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.xtmeval', () => {
@@ -209,13 +209,13 @@ let connectExtempore = (hostname: string, port: number) => {
 }
 
 // connect to extempore with defaults
-let connectDefaultCommand = () => {
+let connectCommand = () => {
     const config = vscode.workspace.getConfiguration("extempore");
     connectExtempore(config.get("hostname"), config.get("port"));
 };
 
 // connect to extempore
-let connectCommand = async () => {
+let connectToHostPortCommand = async () => {
     let hostname: string = await vscode.window.showInputBox({ prompt: 'Hostname', value: 'localhost' });
     let portString: string = await vscode.window.showInputBox({ prompt: 'Port number', value: '7099' });
     let port: number = parseInt(portString);

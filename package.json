@@ -18,6 +18,7 @@
 	"activationEvents": [
 		"onCommand:extension.xtmstart",
 		"onCommand:extension.xtmconnect",
+		"onCommand:extension.xtmconnecthostport",
 		"onCommand:extension.xtmeval",
 		"onCommand:extension.xtmdisconnect",
 		"onCommand:extension.xtmhelp",
@@ -98,8 +99,8 @@
 				"title": "Extempore: Connect"
 			},
 			{
-				"command": "extension.xtmconnectdefault",
-				"title": "Extempore: Connect To Default"
+				"command": "extension.xtmconnecthostport",
+				"title": "Extempore: Connect to host:port"
 			},
 			{
 				"command": "extension.xtmeval",
