@@ -5,13 +5,18 @@ Studio Code.
 
 ## Installation
 
-Install it through the Extensions view (`View > Extensions`).
+Install it through the Extensions view (`View > Extensions`); search for "vscode-extempore".
 
 ## Use
 
-1. open up an Extempore file (with an `.xtm`) file extension.
+0. [set up Extempore on your computer](https://extemporelang.github.io/docs/overview/quickstart/)
+
+1. open up an Extempore file (with an `.xtm`) file extension
+
 2. start Extempore with `Extempore Start` (use the Command Palette)
+
 3. connect VSCode to the Extempore process with `Extempore Connect`
+
 4. move your cursor into an Extempore expression and evaluate it with `Extempore
    Eval` (default keybinding: <kbd>ctrl</kbd>+<kbd>enter</kbd> on Win/Linux,
    <kbd>cmd</kbd>+<kbd>enter</kbd> on macOS)
@@ -43,7 +48,7 @@ folder is. It tries to figure this out by:
   
 If you're planning on doing a lot of Extempore coding, it's not a bad idea to
 set that in your user settings. Open your user settings with `Preferences: Open
-User Settings` and add a config entry which looks like this:
+User Settings` and add a config entry which looks something like this:
 
 ```json
   "extempore.sharedir": "/Users/ben/extempore" 
@@ -57,16 +62,15 @@ after you've made your edits.
 
 ## Features
 
-* start & manage Extempore processes using the built-in terminal
-* Syntax highlighting
-* Auto-indent on return
-* Snippets: two example snippets are provided (tr: temporal recursion bf: bind-func)
+- start & manage Extempore processes using the built-in terminal
+- syntax highlighting
+- auto-indent on return
+- snippets (see [snippets file](./snippets/extempore.json))
 
 ## TODO
 
 - allow for multiple simultaneous connections (on different host/port)
 - more snippets
-- play nice with paredit/parinfer/other fancy editing tools
 
 ## Changelog
 
@@ -94,7 +98,6 @@ after you've made your edits.
   - fixed some indenting problems
   - added selection formatting
   - added snippets for play, mplay, loop, eloop, mloop, mcc
-
 
 ## Developer Notes
 
