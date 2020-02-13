@@ -13,7 +13,7 @@
 		"url": "https://github.com/extemporelang/vscode-extempore"
 	},
 	"categories": [
-		"Languages"
+		"Programming Languages"
 	],
 	"activationEvents": [
 		"onCommand:extension.xtmstart",
