@@ -124,14 +124,14 @@
 		"test": "npm run compile && node ./node_modules/vscode/bin/test"
 	},
 	"devDependencies": {
-		"typescript": "^2.6.1",
-		"vscode": "^1.1.6",
-		"@types/node": "^7.0.43",
-		"@types/mocha": "^2.2.42"
+		"@types/mocha": "^2.2.48",
+		"@types/node": "^7.10.9",
+		"typescript": "^2.9.2",
+		"vscode": "^1.1.36"
 	},
 	"dependencies": {
-		"opn": "^5.1.0",
-		"match-bracket": "1.0.0"
+		"match-bracket": "1.0.0",
+		"opn": "^5.5.0"
 	},
 	"__metadata": {
 		"id": "6bd0a283-df9a-425a-b080-b3781cb08aad",
