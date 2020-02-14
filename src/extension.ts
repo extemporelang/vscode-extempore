@@ -34,7 +34,7 @@ export function activate(context: vscode.ExtensionContext) {
                 let offset = document.offsetAt(editor.selection.active);
                 let charsAround = document.getText(
                     new vscode.Range(document.positionAt(offset - 1),
-                                     document.positionAt(offset + 1)));
+                        document.positionAt(offset + 1)));
 
                 // hack for handling the special case where the cursor is just outside a
                 // final closing bracket (so we do evaluate that form)
