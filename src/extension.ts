@@ -1,13 +1,16 @@
 'use strict';
 
+// vscode
 import * as vscode from 'vscode';
-import * as net from 'net';
-import * as os from 'os';
-import { spawnSync } from 'child_process';
-import { setTimeout } from 'timers';
-import { env } from 'process';
-import opn = require('opn');
 
+// node
+import { env } from 'process';
+import { platform } from 'os';
+import { setTimeout } from 'timers';
+import { Socket } from 'net';
+import { spawnSync } from 'child_process';
+
+// Extempore extension
 import { xtmIndent, xtmTopLevelSexpr, xtmGetBlock } from './sexpr';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -69,7 +72,7 @@ export function activate(context: vscode.ExtensionContext) {
     // the main Extempore page but this is better than nothing for now
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.xtmhelp',
-            () => opn('https://extemporelang.github.io/')));
+            () => vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://extemporelang.github.io/'))));
 
     if (shouldUseFormatter()) {
         let indentDisposable = vscode.languages.registerOnTypeFormattingEditProvider('extempore', {
@@ -128,7 +131,7 @@ export function dispose() {
     _terminal.dispose();
 }
 
-let _socket: net.Socket;
+let _socket: Socket;
 let _terminal: vscode.Terminal;
 
 // unless paredit or parinfer are active, use the extempore formatter
@@ -143,7 +146,7 @@ let shouldUseFormatter = () => {
 }
 
 let isExtemporeOnSystemPath = (): boolean => {
-    if (os.platform() === "win32") {
+    if (platform() === "win32") {
         return false;
     } else {
         return spawnSync("which", ["extempore"]).status === 0;
@@ -200,7 +203,7 @@ let startExtemporeInTerminal = () => {
 
 let connectExtempore = (hostname: string, port: number) => {
     // create Extempore socket
-    _socket = new net.Socket();
+    _socket = new Socket();
     _socket.setEncoding('ascii');
     _socket.setKeepAlive(true);
 
