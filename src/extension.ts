@@ -31,10 +31,21 @@ export function activate(context: vscode.ExtensionContext) {
                 // if there's a selection active, use that
                 evalRange = editor.selection;
             } else {
-                let pos = document.offsetAt(editor.selection.active);
-                let xtmBlock: [number, number, string] = xtmGetBlock(document.getText(), pos);
+                let offset = document.offsetAt(editor.selection.active);
+                let charsAround = document.getText(
+                    new vscode.Range(document.positionAt(offset - 1),
+                                     document.positionAt(offset + 1)));
+
+                // hack for handling the special case where the cursor is just outside a
+                // final closing bracket (so we do evaluate that form)
+                if (charsAround[0] == ")" && charsAround[1] != ")") {
+                    offset -= 1;
+                }
+
+                // figure out exactly what expression to send to Extempore
+                let xtmBlock: [number, number, string] = xtmGetBlock(document.getText(), offset);
                 //console.log(`xtmblk: '${xtmBlock[2]}'`);
-                let xtmExpr = xtmTopLevelSexpr(xtmBlock[2], pos - xtmBlock[0]);
+                let xtmExpr = xtmTopLevelSexpr(xtmBlock[2], offset - xtmBlock[0]);
                 //console.log(`xtmexp: ${JSON.stringify(xtmExpr)}`);
                 let start = document.positionAt(xtmExpr[0] + xtmBlock[0]);
                 let end = document.positionAt(xtmExpr[1] + 1 + xtmBlock[0]);
