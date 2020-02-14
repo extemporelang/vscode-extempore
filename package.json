@@ -126,9 +126,7 @@
 		"typescript": "^2.9.2",
 		"vscode": "^1.1.36"
 	},
-	"dependencies": {
-		"match-bracket": "1.0.0"
-	},
+	"dependencies": {},
 	"__metadata": {
 		"id": "6bd0a283-df9a-425a-b080-b3781cb08aad",
 		"publisherDisplayName": "Extempore",
