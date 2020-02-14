@@ -41,7 +41,7 @@
 		],
 		"configuration": {
 			"type": "object",
-			"title": "Extempore configuration",
+			"title": "Extempore",
 			"properties": {
 				"extempore.sharedir": {
 					"type": "string",
