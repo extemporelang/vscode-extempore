@@ -44,7 +44,7 @@
 			"title": "Extempore configuration",
 			"properties": {
 				"extempore.sharedir": {
-    				"type": "string",
+					"type": "string",
 					"default": ".",
 					"description": "Location of the Extempore share directory"
 				},
