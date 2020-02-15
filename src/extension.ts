@@ -158,7 +158,7 @@ let isExtemporeOnSystemPath = (): boolean => {
 }
 
 let getExtemporePath = (): string => {
-    const config = vscode.workspace.getConfiguration("extempore");
+    const config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("extempore");
     if (env["EXTEMPORE_PATH"]) {
         return env["EXTEMPORE_PATH"];
     } else if (config.has("sharedir")) {
