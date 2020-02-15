@@ -6,6 +6,8 @@ import * as vscode from 'vscode';
 // node
 import { env } from 'process';
 import { platform } from 'os';
+import * as fs from 'fs';
+import * as path from 'path';
 import { setTimeout } from 'timers';
 import { Socket } from 'net';
 import { spawnSync } from 'child_process';
@@ -244,16 +246,18 @@ let connectToHostPortCommand = async () => {
 
 let downloadExtemporeBinary = async () => {
 
-    const downloadUris = {
-        'win32': 'https://github.com/digego/extempore/releases/download/1d2b74f/Extempore-0.8.1-20200205-win10.zip',
+    const extemporeVersion: string = '0.8.3'
+    const releaseFileMap = {
+        'win32': `Extempore-${extemporeVersion}-windows`,
         // we should probably use .zip on macOS as well (rather than .dmg)
-        'darwin': 'https://github.com/digego/extempore/releases/download/1d2b74f/Extempore-0.8.1-20200205-win10.zip'
+        'darwin': `Extempore-${extemporeVersion}-macOS`
     }
 
-    const downloadUri: string = downloadUris[platform()];
-    if (!downloadUri) {
+    if (!(platform() in releaseFileMap)) {
         vscode.window.showErrorMessage('Extempore: binary download currently only available for macOS & Windows');
     }
+    const releaseFile = releaseFileMap[platform()];
+    const ghReleaseUri: string = `https://github.com/digego/extempore/releases/download/${extemporeVersion}/${releaseFile}.zip`;
 
     // where should we put it?
     const sharedir: string = await vscode.window.showOpenDialog(
@@ -264,16 +268,21 @@ let downloadExtemporeBinary = async () => {
             openLabel: 'Select Folder'
         }).then(fileUris => fileUris[0].fsPath);
 
+    const downloadPath = path.join(sharedir, releaseFile)
+    if (fs.existsSync(downloadPath)) {
+        vscode.window.showErrorMessage(`Extempore: sorry, ${downloadPath} already exists.`);
+    }
+
     const downloadOptions = { extract: true, timeout: 10 * 1000 };
 
     // now, actually download the thing
     try {
-        download(downloadUri, `${sharedir}`, downloadOptions)
-            .on('downloadProgress', progress => console.log(`${progress.percent * 100}% done`))
+        download(ghReleaseUri, `${sharedir}`, downloadOptions)
+            .on('downloadProgress', (progress) => console.log(`${progress.percent * 100}% done`))
             .then(() => {
+                const config = vscode.workspace.getConfiguration("extempore");
+                config.update("sharedir", sharedir, true);
                 vscode.window.showInformationMessage(`Extempore: successfully downloaded to ${sharedir}/extempore`);
-                vscode.workspace.getConfiguration("extempore")
-                    .update("sharedir", sharedir, true);
             });
 
     } catch (error) {
