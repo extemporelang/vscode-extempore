@@ -243,7 +243,20 @@ let connectToHostPortCommand = async () => {
 // download & setup Extempore
 
 let downloadExtemporeBinary = async () => {
-    let sharedir: string = await vscode.window.showOpenDialog(
+
+    const downloadUris = {
+        'win32': 'https://github.com/digego/extempore/releases/download/1d2b74f/Extempore-0.8.1-20200205-win10.zip',
+        // we should probably use .zip on macOS as well (rather than .dmg)
+        'darwin': 'https://github.com/digego/extempore/releases/download/1d2b74f/Extempore-0.8.1-20200205-win10.zip'
+    }
+
+    const downloadUri: string = downloadUris[platform()];
+    if (!downloadUri) {
+        vscode.window.showErrorMessage('Extempore: binary download currently only available for macOS & Windows');
+    }
+
+    // where should we put it?
+    const sharedir: string = await vscode.window.showOpenDialog(
         {
             canSelectFiles: false,
             canSelectFolders: true,
@@ -251,14 +264,17 @@ let downloadExtemporeBinary = async () => {
             openLabel: 'Select Folder'
         }).then(fileUris => fileUris[0].fsPath);
 
-    let testuri: string = 'https://github.com/extemporelang/vscode-extempore/archive/master.zip';
+    const downloadOptions = { extract: true, timeout: 10 * 1000 };
 
-    let downloadOptions = { extract: true, timeout: 10 * 1000 };
-
+    // now, actually download the thing
     try {
-        download(testuri, `${sharedir}`, downloadOptions)
+        download(downloadUri, `${sharedir}`, downloadOptions)
             .on('downloadProgress', progress => console.log(`${progress.percent*100}% done`))
-            .then(() => vscode.window.showInformationMessage(`Extempore: successfully downloaded to ${sharedir}/extempore`))
+            .then(() => {
+                vscode.window.showInformationMessage(`Extempore: successfully downloaded to ${sharedir}/extempore`)
+                const config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("extempore");
+                config.update("extempore.sharedir", sharedir);
+            })
 
     } catch (error) {
         vscode.window.showErrorMessage(`Extempore: error downloading binary "${error.response.body}"`);
