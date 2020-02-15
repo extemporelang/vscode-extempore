@@ -265,7 +265,7 @@ let downloadExtemporeBinary = async () => {
             canSelectFiles: false,
             canSelectFolders: true,
             canSelectMany: false,
-            openLabel: 'Select Folder'
+            openLabel: 'Select Download Location'
         }).then(fileUris => fileUris[0].fsPath);
 
     const downloadPath = path.join(sharedir, releaseFile)
