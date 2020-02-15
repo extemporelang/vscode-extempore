@@ -269,12 +269,12 @@ let downloadExtemporeBinary = async () => {
     // now, actually download the thing
     try {
         download(downloadUri, `${sharedir}`, downloadOptions)
-            .on('downloadProgress', progress => console.log(`${progress.percent*100}% done`))
+            .on('downloadProgress', progress => console.log(`${progress.percent * 100}% done`))
             .then(() => {
-                vscode.window.showInformationMessage(`Extempore: successfully downloaded to ${sharedir}/extempore`)
-                const config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("extempore");
-                config.update("extempore.sharedir", sharedir);
-            })
+                vscode.window.showInformationMessage(`Extempore: successfully downloaded to ${sharedir}/extempore`);
+                vscode.workspace.getConfiguration("extempore")
+                    .update("sharedir", sharedir, true);
+            });
 
     } catch (error) {
         vscode.window.showErrorMessage(`Extempore: error downloading binary "${error.response.body}"`);
