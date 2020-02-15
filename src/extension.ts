@@ -9,11 +9,15 @@ import { platform } from 'os';
 import { setTimeout } from 'timers';
 import { Socket } from 'net';
 import { spawnSync } from 'child_process';
+import * as download from 'download';
 
 // Extempore extension
 import { xtmIndent, xtmTopLevelSexpr, xtmGetBlock } from './sexpr';
 
 export function activate(context: vscode.ExtensionContext) {
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand('extension.xtmdownloadbinary', () => downloadExtemporeBinary()));
 
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.xtmstart', () => startExtemporeInTerminal()));
@@ -235,3 +239,28 @@ let connectToHostPortCommand = async () => {
     let port: number = parseInt(portString);
     connectExtempore(hostname, port);
 };
+
+// download & setup Extempore
+
+let downloadExtemporeBinary = async () => {
+    let sharedir: string = await vscode.window.showOpenDialog(
+        {
+            canSelectFiles: false,
+            canSelectFolders: true,
+            canSelectMany: false,
+            openLabel: 'Select Folder'
+        }).then(fileUris => fileUris[0].fsPath);
+
+    let testuri: string = 'https://github.com/extemporelang/vscode-extempore/archive/master.zip';
+
+    let downloadOptions = { extract: true, timeout: 10 * 1000 };
+
+    try {
+        download(testuri, `${sharedir}`, downloadOptions)
+            .on('downloadProgress', progress => console.log(`${progress.percent*100}% done`))
+            .then(() => vscode.window.showInformationMessage(`Extempore: successfully downloaded to ${sharedir}/extempore`))
+
+    } catch (error) {
+        vscode.window.showErrorMessage(`Extempore: error downloading binary "${error.response.body}"`);
+    };
+}
