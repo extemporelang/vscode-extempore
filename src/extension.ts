@@ -273,10 +273,9 @@ let downloadExtemporeBinary = async () => {
         vscode.window.showErrorMessage(`Extempore: sorry, ${downloadPath} already exists.`);
     }
 
-    const downloadOptions = { extract: true, timeout: 10 * 1000 };
-
-    // now, actually download the thing
     try {
+		// now, actually download the thing
+		const downloadOptions = { extract: true, timeout: 10 * 1000 };
         download(ghReleaseUri, `${sharedir}`, downloadOptions)
             .on('downloadProgress', (progress) => console.log(`${progress.percent * 100}% done`))
             .then(() => {
