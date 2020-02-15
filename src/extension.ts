@@ -282,7 +282,8 @@ let downloadExtemporeBinary = async () => {
             .then(() => {
                 const config = vscode.workspace.getConfiguration("extempore");
                 config.update("sharedir", sharedir, true);
-                vscode.window.showInformationMessage(`Extempore: successfully downloaded to ${sharedir}/extempore`);
+                vscode.window.showInformationMessage(`Extempore: successfully downloaded to ${sharedir}/${downloadPath}\n`
+													 + 'also updating extempore.sharedir config setting');
             });
 
     } catch (error) {
