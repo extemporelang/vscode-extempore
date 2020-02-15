@@ -273,19 +273,21 @@ let downloadExtemporeBinary = async () => {
         vscode.window.showErrorMessage(`Extempore: sorry, ${downloadPath} already exists.`);
     }
 
-    try {
-		// now, actually download the thing
-		const downloadOptions = { extract: true, timeout: 10 * 1000 };
-        download(ghReleaseUri, `${sharedir}`, downloadOptions)
-            .on('downloadProgress', (progress) => console.log(`${progress.percent * 100}% done`))
-            .then(() => {
+    // now, actually download the thing
+    const downloadOptions = { extract: true, timeout: 10 * 1000 };
+    download(ghReleaseUri, `${sharedir}`, downloadOptions)
+        .on('downloadProgress', (progress) => console.log(`${progress.percent * 100}% done`))
+        .then(
+            // success
+            (value) => {
                 const config = vscode.workspace.getConfiguration("extempore");
                 config.update("sharedir", sharedir, true);
                 vscode.window.showInformationMessage(`Extempore: successfully downloaded to ${sharedir}/${downloadPath}\n`
-													 + 'also updating extempore.sharedir config setting');
-            });
-
-    } catch (error) {
-        vscode.window.showErrorMessage(`Extempore: error downloading binary "${error.response.body}"`);
-    };
+                    + 'also updating extempore.sharedir config setting');
+            },
+            // failure
+            (reason) => {
+                vscode.window.showErrorMessage(`Extempore: error downloading binary "${reason}"`);
+            }
+        );
 }
