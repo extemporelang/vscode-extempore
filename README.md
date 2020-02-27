@@ -99,6 +99,15 @@ after you've made your edits.
   - added selection formatting
   - added snippets for play, mplay, loop, eloop, mloop, mcc
 
+- `0.1.0`:
+  - change "connect" command to just use default host/port---there's a new
+    "connect to host/port" port when you need something other than the defauly
+  - add an "Extempore: download binary" command (for macOS/Win, anyway)
+  - make "eval" command work when cursor is just _after_ an s-expression
+
+- `0.2.0`:
+  - fix bug where the "download binary" command wasn't activated properly
+
 ## Developer Notes
 
 To work on this VSCode extension (any help is appreciated!) you need to:
