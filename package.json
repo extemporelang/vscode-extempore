@@ -1,6 +1,6 @@
 {
 	"name": "vscode-extempore",
-	"displayName": "vscode-extempore",
+	"displayName": "Extempore",
 	"description": "Extempore language support for VSCode",
 	"version": "0.1.0",
 	"publisher": "extemporelang",
