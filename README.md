@@ -90,7 +90,7 @@ after you've made your edits.
 
 - `0.0.6`: more robust top-level eval (ignores brackets in strings/comments)
 
-- `0.0.7`: more robust top-level evel
+- `0.0.7`: more robust top-level eval
 
 - `0.0.8`: actually robust top-level eval (honestly ;)
 
