@@ -16,6 +16,7 @@
 		"Programming Languages"
 	],
 	"activationEvents": [
+		"onCommand:extension.xtmdownloadbinary",
 		"onCommand:extension.xtmstart",
 		"onCommand:extension.xtmconnect",
 		"onCommand:extension.xtmconnecthostport",
