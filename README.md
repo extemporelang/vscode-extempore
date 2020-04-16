@@ -108,6 +108,8 @@ after you've made your edits.
 - `0.2.0`:
   - fix bug where the "download binary" command wasn't activated properly
 
+- `0.2.1`: automatically detect & download the latest release with the "Dowload Binary" command
+
 ## Developer Notes
 
 To work on this VSCode extension (any help is appreciated!) you need to:
