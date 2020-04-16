@@ -12,6 +12,7 @@ import { setTimeout } from 'timers';
 import { Socket } from 'net';
 import { spawnSync } from 'child_process';
 import * as download from 'download';
+import got from 'got';
 
 // Extempore extension
 import { xtmIndent, xtmTopLevelSexpr, xtmGetBlock } from './sexpr';
@@ -246,15 +247,24 @@ let connectToHostPortCommand = async () => {
 
 let downloadExtemporeBinary = async () => {
 
-    const extemporeVersion: string = '0.8.3'
+    const tagData = await got(
+        "https://api.github.com/repos/digego/extempore/releases/latest",
+        {responseType: 'json', resolveBodyOnly: true}
+    );
+    const extemporeVersion: string = tagData["tag_name"];
+
+    if (!extemporeVersion) {
+        vscode.window.showErrorMessage('Extempore: error fetching latest release tag name');
+    }
+
     const releaseFileMap = {
-        'win32': `Extempore-${extemporeVersion}-windows`,
-        // we should probably use .zip on macOS as well (rather than .dmg)
-        'darwin': `Extempore-${extemporeVersion}-macOS`
+        'win32': `Extempore-${extemporeVersion}-windows-latest`,
+        'darwin': `Extempore-${extemporeVersion}-macos-latest`,
+        'linux': `Extempore-${extemporeVersion}-ubuntu-latest`
     }
 
     if (!(platform() in releaseFileMap)) {
-        vscode.window.showErrorMessage('Extempore: binary download currently only available for macOS & Windows');
+        vscode.window.showErrorMessage('Extempore: binary download currently only available for macOS, Windows & Linux (Ubuntu)');
     }
     const releaseFile = releaseFileMap[platform()];
     const ghReleaseUri: string = `https://github.com/digego/extempore/releases/download/${extemporeVersion}/${releaseFile}.zip`;
@@ -277,14 +287,14 @@ let downloadExtemporeBinary = async () => {
     const downloadOptions = { extract: true, timeout: 10 * 1000 };
     download(ghReleaseUri, `${sharedir}`, downloadOptions)
         .on('downloadProgress', (progress) => {
-            vscode.window.setStatusBarMessage(`Extempore: download ${(progress.percent * 100).toFixed(1)}% complete`);
+            vscode.window.setStatusBarMessage(`Extempore: download ${extemporeVersion} ${(progress.percent * 100).toFixed(1)}% complete`);
         })
         .then(
             // success
             (value) => {
                 const config = vscode.workspace.getConfiguration("extempore");
                 config.update("sharedir", sharedir, true);
-                vscode.window.showInformationMessage(`Extempore: successfully downloaded to ${sharedir}/${downloadPath}\n`
+                vscode.window.showInformationMessage(`Extempore: successfully downloaded ${extemporeVersion} to ${sharedir}/${downloadPath}\n`
                     + 'also updating extempore.sharedir config setting');
             },
             // failure

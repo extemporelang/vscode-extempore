@@ -132,7 +132,8 @@
 		"vscode": "^1.1.36"
 	},
 	"dependencies": {
-		"download": "^7.1.0"
+		"download": "^7.1.0",
+		"got": "^10.7.0"
 	},
 	"__metadata": {
 		"id": "6bd0a283-df9a-425a-b080-b3781cb08aad",
