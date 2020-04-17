@@ -110,6 +110,9 @@ after you've made your edits.
 
 - `0.2.1`: automatically detect & download the latest release with the "Dowload Binary" command
 
+- `0.2.2`: no functional changes, but the extension is now bundled by webpack
+  (should be leaner)
+
 ## Developer Notes
 
 To work on this VSCode extension (any help is appreciated!) you need to:
