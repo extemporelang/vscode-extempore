@@ -5,7 +5,7 @@
 	"version": "0.2.1",
 	"publisher": "extemporelang",
 	"engines": {
-		"vscode": "^1.38.1"
+		"vscode": "^1.42.1"
 	},
 	"license": "MIT",
 	"repository": {
@@ -126,14 +126,14 @@
 		"test": "npm run compile && node ./node_modules/vscode/bin/test"
 	},
 	"devDependencies": {
-		"@types/mocha": "7.0.1",
-		"@types/node": "13.7.1",
-		"typescript": "3.7.5",
+		"@types/mocha": "7.0.2",
+		"@types/node": "13.11.1",
+		"typescript": "3.8.3",
 		"vscode": "^1.1.36"
 	},
 	"dependencies": {
-		"download": "^7.1.0",
-		"got": "^10.7.0"
+		"download": "^8.0",
+		"got": "^10.7"
 	},
 	"__metadata": {
 		"id": "6bd0a283-df9a-425a-b080-b3781cb08aad",
