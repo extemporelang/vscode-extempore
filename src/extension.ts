@@ -271,6 +271,7 @@ let downloadExtemporeBinary = async () => {
 
     if (!(platform() in releaseFileMap)) {
         vscode.window.showErrorMessage('Extempore: binary download currently only available for macOS, Windows & Linux (Ubuntu)');
+		return;
     }
     const releaseFile = releaseFileMap[platform()];
     const ghReleaseUri: string = `https://github.com/digego/extempore/releases/download/${extemporeVersion}/${releaseFile}.zip`;
@@ -287,6 +288,7 @@ let downloadExtemporeBinary = async () => {
 	const sharedir: string = path.join(downloadDir, "extempore");
     if (fs.existsSync(sharedir)) {
         vscode.window.showErrorMessage(`Extempore: sorry, ${sharedir} already exists.`);
+		return;
     }
 
     // now, actually download the thing
@@ -306,6 +308,7 @@ let downloadExtemporeBinary = async () => {
             // failure
             (reason) => {
                 vscode.window.showErrorMessage(`Extempore: error downloading binary "${reason}"`);
+				return;
             }
         );
 }
