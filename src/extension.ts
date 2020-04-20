@@ -142,7 +142,7 @@ let _socket: Socket;
 let _terminal: vscode.Terminal;
 
 // unless paredit or parinfer are active, use the extempore formatter
-let shouldUseFormatter = () => {
+let shouldUseFormatter = (): boolean => {
     for (const extensionId of ['clptn.code-paredit', 'shaunlebron.vscode-parinfer']) {
         let ext = vscode.extensions.getExtension(extensionId);
         if (ext && ext.isActive) {
