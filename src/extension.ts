@@ -33,8 +33,8 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.xtmeval', () => {
-            let document = vscode.window.activeTextEditor.document;
-            let editor = vscode.window.activeTextEditor;
+            const document = vscode.window.activeTextEditor.document;
+            const editor = vscode.window.activeTextEditor;
             let evalRange: vscode.Range;
 
             if (!editor.selection.isEmpty) {
@@ -42,7 +42,7 @@ export function activate(context: vscode.ExtensionContext) {
                 evalRange = editor.selection;
             } else {
                 let offset = document.offsetAt(editor.selection.active);
-                let charsAround = document.getText(
+                const charsAround = document.getText(
                     new vscode.Range(document.positionAt(offset - 1),
                         document.positionAt(offset + 1)));
 
@@ -53,12 +53,12 @@ export function activate(context: vscode.ExtensionContext) {
                 }
 
                 // figure out exactly what expression to send to Extempore
-                let xtmBlock: [number, number, string] = xtmGetBlock(document.getText(), offset);
+                const xtmBlock: [number, number, string] = xtmGetBlock(document.getText(), offset);
                 //console.log(`xtmblk: '${xtmBlock[2]}'`);
-                let xtmExpr = xtmTopLevelSexpr(xtmBlock[2], offset - xtmBlock[0]);
+                const xtmExpr = xtmTopLevelSexpr(xtmBlock[2], offset - xtmBlock[0]);
                 //console.log(`xtmexp: ${JSON.stringify(xtmExpr)}`);
-                let start = document.positionAt(xtmExpr[0] + xtmBlock[0]);
-                let end = document.positionAt(xtmExpr[1] + 1 + xtmBlock[0]);
+                const start = document.positionAt(xtmExpr[0] + xtmBlock[0]);
+                const end = document.positionAt(xtmExpr[1] + 1 + xtmBlock[0]);
                 evalRange = new vscode.Range(start, end);
             }
             if (evalRange) {
@@ -195,7 +195,7 @@ let startExtemporeInTerminal = () => {
         _terminal.dispose();
     }
     // find the path to the extempore folder
-    let sharedir = getExtemporePath();
+    const sharedir = getExtemporePath();
 
     if (!sharedir) {
         vscode.window.showErrorMessage("Extempore: can't find extempore folder. Set extempore.sharedir in the VSCode settings.");
@@ -237,9 +237,9 @@ let connectCommand = () => {
 
 // connect to extempore
 let connectToHostPortCommand = async () => {
-    let hostname: string = await vscode.window.showInputBox({ prompt: 'Hostname', value: 'localhost' });
-    let portString: string = await vscode.window.showInputBox({ prompt: 'Port number', value: '7099' });
-    let port: number = parseInt(portString);
+    const hostname: string = await vscode.window.showInputBox({ prompt: 'Hostname', value: 'localhost' });
+    const portString: string = await vscode.window.showInputBox({ prompt: 'Port number', value: '7099' });
+    const port: number = parseInt(portString);
     connectExtempore(hostname, port);
 };
 
