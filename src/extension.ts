@@ -293,7 +293,7 @@ let downloadExtemporeBinary = async () => {
 
     // now, actually download the thing
     const downloadOptions = { extract: true, timeout: 10 * 1000 };
-    download(ghReleaseUri, `${sharedir}`, downloadOptions)
+    download(ghReleaseUri, path.dirname(sharedir), downloadOptions)
         .on('downloadProgress', (progress) => {
             vscode.window.setStatusBarMessage(`Extempore: download ${extemporeVersion} ${(progress.percent * 100).toFixed(1)}% complete`);
         })
