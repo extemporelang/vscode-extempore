@@ -119,6 +119,8 @@ after you've made your edits.
   - add "do you want to download this large file" confirmation for Download
     Binary command
 
+- `0.2.4`: bugfixes for misleading "secondary" error messages
+
 ## Developer Notes
 
 To work on this VSCode extension (any help is appreciated!) you need to:
