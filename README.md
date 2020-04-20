@@ -114,6 +114,11 @@ after you've made your edits.
 - `0.2.2`: no functional changes, but the extension is now bundled by webpack
   (should be leaner)
 
+- `0.2.3`:
+  - bugfix for broken folder paths (when using the "Download Binary" command)
+  - add "do you want to download this large file" confirmation for Download
+    Binary command
+
 ## Developer Notes
 
 To work on this VSCode extension (any help is appreciated!) you need to:
