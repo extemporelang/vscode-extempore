@@ -258,9 +258,9 @@ let downloadExtemporeBinary = async () => {
     }
 
     const releaseFileMap = {
-        'win32': `Extempore-${extemporeVersion}-windows-latest`,
-        'darwin': `Extempore-${extemporeVersion}-macos-latest`,
-        'linux': `Extempore-${extemporeVersion}-ubuntu-latest`
+        'win32': `extempore-${extemporeVersion}-windows-latest`,
+        'darwin': `extempore-${extemporeVersion}-macos-latest`,
+        'linux': `extempore-${extemporeVersion}-ubuntu-latest`
     }
 
     if (!(platform() in releaseFileMap)) {
@@ -270,7 +270,7 @@ let downloadExtemporeBinary = async () => {
     const ghReleaseUri: string = `https://github.com/digego/extempore/releases/download/${extemporeVersion}/${releaseFile}.zip`;
 
     // where should we put it?
-    const sharedir: string = await vscode.window.showOpenDialog(
+    const downloadDir: string = await vscode.window.showOpenDialog(
         {
             canSelectFiles: false,
             canSelectFolders: true,
@@ -278,9 +278,9 @@ let downloadExtemporeBinary = async () => {
             openLabel: 'Choose Download Location'
         }).then(fileUris => fileUris[0].fsPath);
 
-    const downloadPath = path.join(sharedir, releaseFile)
-    if (fs.existsSync(downloadPath)) {
-        vscode.window.showErrorMessage(`Extempore: sorry, ${downloadPath} already exists.`);
+	const sharedir: string = path.join(downloadDir, "extempore");
+    if (fs.existsSync(sharedir)) {
+        vscode.window.showErrorMessage(`Extempore: sorry, ${sharedir} already exists.`);
     }
 
     // now, actually download the thing
@@ -294,7 +294,7 @@ let downloadExtemporeBinary = async () => {
             (value) => {
                 const config = vscode.workspace.getConfiguration("extempore");
                 config.update("sharedir", sharedir, true);
-                vscode.window.showInformationMessage(`Extempore: successfully downloaded ${extemporeVersion} to ${sharedir}/${downloadPath}\n`
+                vscode.window.showInformationMessage(`Extempore: successfully downloaded ${extemporeVersion} to ${sharedir}\n`
                     + 'also updating extempore.sharedir config setting');
             },
             // failure
