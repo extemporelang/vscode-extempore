@@ -121,6 +121,8 @@ after you've made your edits.
 
 - `0.2.4`: bugfixes for misleading "secondary" error messages
 
+- `0.2.5`: bugfix for incorrect download path in "Download Binary"
+
 ## Developer Notes
 
 To work on this VSCode extension (any help is appreciated!) you need to:
