@@ -108,7 +108,8 @@ after you've made your edits.
 - `0.2.0`:
   - fix bug where the "download binary" command wasn't activated properly
 
-- `0.2.1`: automatically detect & download the latest release with the "Dowload Binary" command
+- `0.2.1`: automatically detect & download the latest release with the "Download
+  Binary" command
 
 - `0.2.2`: no functional changes, but the extension is now bundled by webpack
   (should be leaner)
