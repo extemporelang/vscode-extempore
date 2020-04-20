@@ -255,6 +255,12 @@ let downloadExtemporeBinary = async () => {
 
     if (!extemporeVersion) {
         vscode.window.showErrorMessage('Extempore: error fetching latest release tag name');
+        return;
+    }
+
+    if (await vscode.window.showWarningMessage(`The Extempore ${extemporeVersion} download is ~300MB, are you ok to download it?`, "Ok", "Cancel") != "Ok") {
+        vscode.window.showErrorMessage('Extempore: cancelled binary download');
+        return;
     }
 
     const releaseFileMap = {
