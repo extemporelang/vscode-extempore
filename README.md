@@ -123,6 +123,8 @@ after you've made your edits.
 
 - `0.2.5`: bugfix for incorrect download path in "Download Binary"
 
+- `0.2.6`: make Extempore extension compatible with older VSCode versions
+
 ## Developer Notes
 
 To work on this VSCode extension (any help is appreciated!) you need to:
