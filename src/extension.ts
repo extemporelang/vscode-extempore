@@ -210,7 +210,7 @@ let startExtemporeInTerminal = () => {
     _terminal = vscode.window.createTerminal("Extempore");
     _terminal.show(true); // show, but don't steal focus
     _terminal.sendText(`cd ${sharedir}`);
-    _terminal.sendText(extemporeExecutableCommand() + ` ${opts}`);
+    _terminal.sendText(extemporeExecutableCommand());
 };
 
 let connectExtempore = (hostname: string, port: number) => {
