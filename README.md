@@ -125,6 +125,8 @@ after you've made your edits.
 
 - `0.2.6`: make Extempore extension compatible with older VSCode versions
 
+- `0.2.7`: add "start with CLI options" command
+
 ## Developer Notes
 
 To work on this VSCode extension (any help is appreciated!) you need to:

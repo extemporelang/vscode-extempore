@@ -2,7 +2,7 @@
 	"name": "vscode-extempore",
 	"displayName": "Extempore",
 	"description": "Extempore language support for VSCode",
-	"version": "0.2.6",
+	"version": "0.2.7",
 	"publisher": "extemporelang",
 	"engines": {
 		"vscode": "^1.38.1"
