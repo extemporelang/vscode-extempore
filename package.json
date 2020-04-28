@@ -2,7 +2,7 @@
 	"name": "vscode-extempore",
 	"displayName": "Extempore",
 	"description": "Extempore language support for VSCode",
-	"version": "0.2.7",
+	"version": "0.2.8",
 	"publisher": "extemporelang",
 	"engines": {
 		"vscode": "^1.38.1"
@@ -18,7 +18,6 @@
 	"activationEvents": [
 		"onCommand:extension.xtmdownloadbinary",
 		"onCommand:extension.xtmstart",
-		"onCommand:extension.xtmstartwithopts",
 		"onCommand:extension.xtmconnect",
 		"onCommand:extension.xtmconnecthostport",
 		"onCommand:extension.xtmeval",
@@ -96,10 +95,6 @@
 			{
 				"command": "extension.xtmstart",
 				"title": "Extempore: Start"
-			},
-			{
-				"command": "extension.xtmstartwithopts",
-				"title": "Extempore: Start (with CLI options)"
 			},
 			{
 				"command": "extension.xtmconnect",
