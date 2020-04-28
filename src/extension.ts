@@ -152,11 +152,16 @@ let shouldUseFormatter = (): boolean => {
     return true;
 }
 
-let isExtemporeOnSystemPath = (): boolean => {
+let extemporeExecutableCommand = (): string => {
     if (platform() === "win32") {
-        return false;
+        return ".\\extempore.exe"
     } else {
-        return spawnSync("which", ["extempore"]).status === 0;
+        if (spawnSync("which", ["extempore"]).status === 0) {
+            // extempore's on $PATH
+            return "extempore";
+        } else {
+            return "./extempore";
+        }
     }
 }
 
@@ -205,7 +210,7 @@ let startExtemporeInTerminal = () => {
     _terminal = vscode.window.createTerminal("Extempore");
     _terminal.show(true); // show, but don't steal focus
     _terminal.sendText(`cd ${sharedir}`);
-    _terminal.sendText(isExtemporeOnSystemPath() ? "extempore" : "./extempore");
+    _terminal.sendText(extemporeExecutableCommand() + ` ${opts}`);
 };
 
 let connectExtempore = (hostname: string, port: number) => {
