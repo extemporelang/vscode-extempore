@@ -23,7 +23,10 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand('extension.xtmdownloadbinary', () => downloadExtemporeBinary()));
 
     context.subscriptions.push(
-        vscode.commands.registerCommand('extension.xtmstart', () => startExtemporeInTerminal()));
+        vscode.commands.registerCommand('extension.xtmstart', () => startExtemporeInTerminal(false)));
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand('extension.xtmstartwithopts', () => startExtemporeInTerminal(true)));
 
     context.subscriptions.push(
         vscode.commands.registerCommand('extension.xtmconnect', () => connectCommand()));
@@ -194,7 +197,7 @@ let sendToProcess = (str: string) => {
 }
 
 // start Extempore in a new Terminal
-let startExtemporeInTerminal = () => {
+let startExtemporeInTerminal = async (promptForOpts: boolean) => {
     // if there's already an Extempore terminal running, kill it
     if (_terminal) {
         _terminal.dispose();
@@ -210,7 +213,15 @@ let startExtemporeInTerminal = () => {
     _terminal = vscode.window.createTerminal("Extempore");
     _terminal.show(true); // show, but don't steal focus
     _terminal.sendText(`cd ${sharedir}`);
-    _terminal.sendText(extemporeExecutableCommand() + ` ${opts}`);
+
+    const executable: string = extemporeExecutableCommand();
+
+    if (promptForOpts) {
+        const cliOpts: string = await vscode.window.showInputBox({ prompt: 'CLI options' });
+        _terminal.sendText(`${executable} ${cliOpts}`);
+    } else {
+        _terminal.sendText(executable);
+    }
 };
 
 let connectExtempore = (hostname: string, port: number) => {

@@ -18,6 +18,7 @@
 	"activationEvents": [
 		"onCommand:extension.xtmdownloadbinary",
 		"onCommand:extension.xtmstart",
+		"onCommand:extension.xtmstartwithopts",
 		"onCommand:extension.xtmconnect",
 		"onCommand:extension.xtmconnecthostport",
 		"onCommand:extension.xtmeval",
@@ -95,6 +96,10 @@
 			{
 				"command": "extension.xtmstart",
 				"title": "Extempore: Start"
+			},
+			{
+				"command": "extension.xtmstartwithopts",
+				"title": "Extempore: Start (with CLI options)"
 			},
 			{
 				"command": "extension.xtmconnect",
