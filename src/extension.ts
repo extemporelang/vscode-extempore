@@ -131,6 +131,29 @@ export function activate(context: vscode.ExtensionContext) {
         });
         context.subscriptions.push(indentDisposable2);
     }
+
+    context.subscriptions.push(
+        vscode.languages.registerDocumentLinkProvider('extempore', {
+            provideDocumentLinks(document: vscode.TextDocument, _token: vscode.CancellationToken): vscode.ProviderResult<vscode.DocumentLink[]> {
+                const results: vscode.DocumentLink[] = [];
+                for (const match of document.getText().matchAll(/(?<=\(sys:load ").+?\..+?(?=")/g)) {
+                    let path = match[0];
+                    // if it's not an absolute path
+                    if (!/^([\\\/~]|.+:[\\/])/.test(path)) {
+                        path = getExtemporePath()?.concat('/', path);
+                        if (!path) {
+                            continue;
+                        }
+                    }
+                    results.push(new vscode.DocumentLink(
+                        new vscode.Range(document.positionAt(match.index), document.positionAt(match.index + match[0].length)),
+                        vscode.Uri.file(path))
+                    );
+                }
+                return results;
+            }
+        })
+    );
 }
 
 export function dispose() {
