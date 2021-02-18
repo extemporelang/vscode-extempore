@@ -127,6 +127,11 @@ after you've made your edits.
 
 - `0.2.7`: add "start with CLI options" command
 
+- `0.2.8`: refactor Extempore start command
+
+- `0.2.9`: implemented `vscode.DocumentLinkProvider` for links passed to
+  `sys:load` (thanks @stellartux)
+
 ## Developer Notes
 
 To work on this VSCode extension (any help is appreciated!) you need to:
