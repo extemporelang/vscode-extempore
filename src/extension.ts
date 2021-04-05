@@ -292,17 +292,19 @@ let downloadExtemporeBinary = async () => {
     }
 
     const releaseFileMap = {
-        'win32': `extempore-${extemporeVersion}-windows-latest`,
-        'darwin': `extempore-${extemporeVersion}-macos-latest`,
-        'linux': `extempore-${extemporeVersion}-ubuntu-latest`
+        'win32': `extempore-${extemporeVersion}-windows-2019`,
+        'darwin': `extempore-${extemporeVersion}-macos-11.0`,
+        'linux': `extempore-${extemporeVersion}-ubuntu-20.04`
     }
 
     if (!(platform() in releaseFileMap)) {
         vscode.window.showErrorMessage('Extempore: binary download currently only available for macOS, Windows & Linux (Ubuntu)');
 		return;
     }
-    const releaseFile = releaseFileMap[platform()];
-    const ghReleaseUri: string = `https://github.com/digego/extempore/releases/download/${extemporeVersion}/${releaseFile}.zip`;
+    const releaseFile: string = releaseFileMap[platform()];
+    const matchingAssets = tagData["assets"].filter(asset => asset["name"] === releaseFile + ".zip");
+    const assetUri: string = matchingAssets[0]["browser_download_url"];
+
 
     // where should we put it?
     const downloadDir: string = await vscode.window.showOpenDialog(
@@ -321,7 +323,7 @@ let downloadExtemporeBinary = async () => {
 
     // now, actually download the thing
     const downloadOptions = { extract: true, timeout: 10 * 1000 };
-    download(ghReleaseUri, path.dirname(sharedir), downloadOptions)
+    download(assetUri, path.dirname(sharedir), downloadOptions)
         .on('downloadProgress', (progress) => {
             vscode.window.setStatusBarMessage(`Extempore: download ${extemporeVersion} ${(progress.percent * 100).toFixed(1)}% complete`);
         })

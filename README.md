@@ -132,6 +132,8 @@ after you've made your edits.
 - `0.2.9`: implemented `vscode.DocumentLinkProvider` for links passed to
   `sys:load` (thanks @stellartux)
 
+- `0.2.10`: fix broken "Download Binary" command (download paths had changed)
+
 ## Developer Notes
 
 To work on this VSCode extension (any help is appreciated!) you need to:
