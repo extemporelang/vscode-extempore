@@ -11,8 +11,10 @@ import * as path from 'path';
 import { setTimeout } from 'timers';
 import { Socket } from 'net';
 import { spawnSync } from 'child_process';
-import * as download from 'download';
-import got from 'got';
+import { Readable } from 'stream';
+import { pipeline } from 'stream/promises';
+import * as os from 'os';
+import * as yauzl from 'yauzl';
 
 // Extempore extension
 import { xtmIndent, xtmTopLevelSexpr, xtmGetBlock } from './sexpr';
@@ -275,10 +277,15 @@ let connectToHostPortCommand = async () => {
 
 let downloadExtemporeBinary = async () => {
 
-    const tagData = await got(
+    const tagResponse = await fetch(
         "https://api.github.com/repos/digego/extempore/releases/latest",
-        {responseType: 'json', resolveBodyOnly: true}
+        { headers: { 'Accept': 'application/vnd.github+json' } }
     );
+    if (!tagResponse.ok) {
+        vscode.window.showErrorMessage(`Extempore: error fetching latest release (HTTP ${tagResponse.status})`);
+        return;
+    }
+    const tagData: any = await tagResponse.json();
     const extemporeVersion: string = tagData["tag_name"];
 
     if (!extemporeVersion) {
@@ -322,23 +329,88 @@ let downloadExtemporeBinary = async () => {
     }
 
     // now, actually download the thing
-    const downloadOptions = { extract: true, timeout: 10 * 1000 };
-    download(assetUri, path.dirname(sharedir), downloadOptions)
-        .on('downloadProgress', (progress) => {
-            vscode.window.setStatusBarMessage(`Extempore: download ${extemporeVersion} ${(progress.percent * 100).toFixed(1)}% complete`);
-        })
-        .then(
-            // success
-            (value) => {
-                const config = vscode.workspace.getConfiguration("extempore");
-                config.update("sharedir", sharedir, true);
-                vscode.window.showInformationMessage(`Extempore: successfully downloaded ${extemporeVersion} to ${sharedir}\n`
-                    + 'also updating extempore.sharedir config setting');
-            },
-            // failure
-            (reason) => {
-                vscode.window.showErrorMessage(`Extempore: error downloading binary "${reason}"`);
-				return;
-            }
-        );
+    try {
+        await downloadAndExtract(assetUri, path.dirname(sharedir), (percent) => {
+            vscode.window.setStatusBarMessage(`Extempore: download ${extemporeVersion} ${percent.toFixed(1)}% complete`);
+        });
+    } catch (reason) {
+        vscode.window.showErrorMessage(`Extempore: error downloading binary "${reason}"`);
+        return;
+    }
+    const config = vscode.workspace.getConfiguration("extempore");
+    config.update("sharedir", sharedir, true);
+    vscode.window.showInformationMessage(`Extempore: successfully downloaded ${extemporeVersion} to ${sharedir}\n`
+        + 'also updating extempore.sharedir config setting');
+}
+
+// download a zip to a temp file (reporting progress), then extract it into destDir
+async function downloadAndExtract(url: string, destDir: string, onProgress: (percent: number) => void): Promise<void> {
+    const response = await fetch(url, { signal: AbortSignal.timeout(10 * 60 * 1000) });
+    if (!response.ok || !response.body) {
+        throw new Error(`HTTP ${response.status} fetching ${url}`);
+    }
+    const total = Number(response.headers.get('content-length')) || 0;
+    let received = 0;
+    const body = Readable.fromWeb(response.body as any);
+    body.on('data', (chunk: Buffer) => {
+        received += chunk.length;
+        if (total) { onProgress(received / total * 100); }
+    });
+
+    const tmpDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'extempore-'));
+    const zipPath = path.join(tmpDir, 'extempore.zip');
+    try {
+        await pipeline(body, fs.createWriteStream(zipPath));
+        await extractZip(zipPath, destDir);
+    } finally {
+        await fs.promises.rm(tmpDir, { recursive: true, force: true });
+    }
+}
+
+// extract a zip, refusing any entry that would land outside destDir
+function extractZip(zipPath: string, destDir: string): Promise<void> {
+    const root = path.resolve(destDir);
+    const inside = (p: string) => p === root || p.startsWith(root + path.sep);
+    return new Promise((resolve, reject) => {
+        yauzl.open(zipPath, { lazyEntries: true }, (err, zipfile) => {
+            if (err || !zipfile) { return reject(err); }
+            const fail = (e: Error) => { zipfile.close(); reject(e); };
+            zipfile.on('error', fail);
+            zipfile.on('end', () => resolve());
+            zipfile.on('entry', async (entry: yauzl.Entry) => {
+                try {
+                    const target = path.resolve(root, entry.fileName);
+                    if (!inside(target)) { throw new Error(`unsafe path in zip: ${entry.fileName}`); }
+                    const mode = (entry.externalFileAttributes >>> 16) & 0o177777;
+                    const isSymlink = (mode & 0o170000) === 0o120000;
+                    if (entry.fileName.endsWith('/')) {
+                        await fs.promises.mkdir(target, { recursive: true });
+                    } else {
+                        await fs.promises.mkdir(path.dirname(target), { recursive: true });
+                        const stream = await new Promise<Readable>((res, rej) =>
+                            zipfile.openReadStream(entry, (e, s) => e || !s ? rej(e) : res(s)));
+                        if (isSymlink) {
+                            const linkTarget = (await streamToBuffer(stream)).toString();
+                            if (!inside(path.resolve(path.dirname(target), linkTarget))) {
+                                throw new Error(`unsafe symlink in zip: ${entry.fileName} -> ${linkTarget}`);
+                            }
+                            await fs.promises.symlink(linkTarget, target);
+                        } else {
+                            await pipeline(stream, fs.createWriteStream(target, { mode: (mode & 0o777) || 0o644 }));
+                        }
+                    }
+                    zipfile.readEntry();
+                } catch (e) {
+                    fail(e as Error);
+                }
+            });
+            zipfile.readEntry();
+        });
+    });
+}
+
+async function streamToBuffer(stream: Readable): Promise<Buffer> {
+    const chunks: Buffer[] = [];
+    for await (const chunk of stream) { chunks.push(chunk as Buffer); }
+    return Buffer.concat(chunks);
 }

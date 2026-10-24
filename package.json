@@ -5,7 +5,7 @@
 	"version": "0.2.10",
 	"publisher": "extemporelang",
 	"engines": {
-		"vscode": "^1.38.1"
+		"vscode": "^1.85.0"
 	},
 	"license": "MIT",
 	"repository": {
@@ -125,21 +125,20 @@
 		"test-compile": "tsc -p ./"
 	},
 	"devDependencies": {
-		"@types/mocha": "7.0.2",
-		"@types/node": "13.11.1",
-		"ts-loader": "^7.0.0",
-		"typescript": "3.8.3",
-		"vscode": "^1.1.36",
-		"webpack": "^4.42.1",
-		"webpack-cli": "^3.3.11"
-	},
-	"dependencies": {
-		"download": "^8.0",
-		"got": "^10.7"
+		"@types/node": "^20.19.43",
+		"@types/vscode": "~1.85.0",
+		"@types/yauzl": "^3.4.0",
+		"ts-loader": "^9.6.2",
+		"typescript": "^6.0.3",
+		"webpack": "^5.112.2",
+		"webpack-cli": "^7.2.3"
 	},
 	"__metadata": {
 		"id": "6bd0a283-df9a-425a-b080-b3781cb08aad",
 		"publisherDisplayName": "Extempore",
 		"publisherId": "9c34a9a3-631d-402a-b6d4-f360bb1d348b"
+	},
+	"dependencies": {
+		"yauzl": "^3.4.0"
 	}
 }
