@@ -1,148 +1,70 @@
 # vscode-extempore
 
-An [Extempore](https://extemporelang.github.io) language extension for Visual
-Studio Code.
+[Extempore](https://extemporelang.github.io) support for Visual Studio Code:
+syntax highlighting and snippets, plus evaluation, completion, hover, formatting
+and an outline through extempore's language server.
 
-## Installation
+## Setup
 
-Install it through the Extensions view (`View > Extensions`); search for "vscode-extempore".
+1. install [Extempore](https://extemporelang.github.io/overview/quickstart/), or
+   run `Extempore: Download binary` from the Command Palette
+2. make sure VS Code can find the `extempore` binary: either it's on your
+   `PATH`, or `extempore.executable` is set to its path (the download command
+   sets this for you)
+3. start Extempore with `Extempore: Start` (or however you like)
+4. open an `.xtm` file and evaluate code with <kbd>ctrl</kbd>+<kbd>enter</kbd>
+   (<kbd>cmd</kbd>+<kbd>enter</kbd> on macOS)
 
-## Use
+The extension runs `extempore lsp`, which connects to the running Extempore's
+[nREPL server](https://extemporelang.github.io/guides/nrepl/). It finds the
+server the same way `extempore send` does: `$EXTEMPORE_NREPL_PORT`, then a
+`.nrepl-port` file in the file's folder or above it, then port 7888.
 
-0. [set up Extempore on your computer](https://extemporelang.github.io/docs/overview/quickstart/)
+## Commands
 
-1. open up an Extempore file (with an `.xtm`) file extension
+| command                                           | keybinding                                                       |
+| ------------------------------------------------- | ---------------------------------------------------------------- |
+| `Extempore: Evaluate top-level form or selection` | <kbd>ctrl</kbd>/<kbd>cmd</kbd>+<kbd>enter</kbd>                  |
+| `Extempore: Evaluate file`                        | <kbd>ctrl</kbd>/<kbd>cmd</kbd>+<kbd>shift</kbd>+<kbd>enter</kbd> |
+| `Extempore: Interrupt evaluation`                 | <kbd>ctrl</kbd>/<kbd>cmd</kbd>+<kbd>alt</kbd>+<kbd>c</kbd>       |
+| `Extempore: Start`                                |                                                                  |
+| `Extempore: Restart language server`              |                                                                  |
+| `Extempore: Download binary`                      |                                                                  |
 
-2. start Extempore with `Extempore Start` (use the Command Palette)
+Each result shows at the end of its form until you next edit the file. Errors
+are also marked on their form, and everything the code prints goes to the
+"Extempore" output panel. Formatting (`Format Document`, or
+`editor.formatOnSave`) uses `extempore fmt`'s rules.
 
-3. connect VSCode to the Extempore process with `Extempore Connect`
+## Settings
 
-4. move your cursor into an Extempore expression and evaluate it with `Extempore
-   Eval` (default keybinding: <kbd>ctrl</kbd>+<kbd>enter</kbd> on Win/Linux,
-   <kbd>cmd</kbd>+<kbd>enter</kbd> on macOS)
+| setting                   | default     | meaning                                                                                     |
+| ------------------------- | ----------- | ------------------------------------------------------------------------------------------- |
+| `extempore.executable`    | `extempore` | the `extempore` binary                                                                      |
+| `extempore.sharedir`      |             | where `Extempore: Start` runs extempore (else `$EXTEMPORE_PATH`, then the workspace folder) |
+| `extempore.nrepl.host`    | `127.0.0.1` | the nREPL server's host                                                                     |
+| `extempore.nrepl.port`    |             | the nREPL server's port, if not found as above                                              |
+| `extempore.nrepl.process` |             | the Scheme process to evaluate in, e.g. `utility`                                           |
+| `extempore.transport`     | `nrepl`     | `legacy` for an Extempore older than the nREPL server                                       |
 
-## Configuration
+## The legacy transport
 
-### Keybindings
+Extempore releases before the nREPL server only accept code over a raw socket on
+port 7099. Set `extempore.transport` to `legacy`, start Extempore, then run
+`Extempore: Connect (legacy)` (or `Connect to host:port (legacy)`). Each
+evaluated form's value shows in the status bar. `extempore.hostname` and
+`extempore.port` set where it connects. Formatting and the outline still work if
+your `extempore` binary has `extempore lsp`.
 
-Only `Extempore Eval` has a keybinding by default---although you should
-obviously feel free to [add your own
-keybindings](https://code.visualstudio.com/docs/getstarted/keybindings#_advanced-customization)
-for other commands.
+## Development
 
-### Extempore share directory
-
-The extempore "share directory" is just your `extempore` folder---the one with
-`libs`, `examples`, `runtime` etc. For `Extempore Start` to be able to
-automatically start Extempore in a new terminal, it needs to know where this
-folder is. It tries to figure this out by:
-
-- if you've added a user setting for `extempore.sharedir` then it'll use that
-  path
-  
-- if you opened the root `extempore` folder as your workspace folder in VSCode
-  (e.g. if you're just messing with the examples) then it'll use that
-  
-- otherwise, it gives up and bombs out (you can still start extempore however
-  you like, it's just that `Extempore Start` won't do it for you automagically)
-  
-If you're planning on doing a lot of Extempore coding, it's not a bad idea to
-set that in your user settings. Open your user settings with `Preferences: Open
-User Settings` and add a config entry which looks something like this:
-
-```json
-  "extempore.sharedir": "/Users/ben/extempore" 
+```sh
+mise install
+pnpm install
+pnpm build        # dist/extension.js
+pnpm check        # type-check
+EXTEMPORE=/path/to/extempore pnpm test
+pnpm package      # vscode-extempore-VERSION.vsix
 ```
 
-Don't forget to replace `/Users/ben/extempore` (or `C:\Users\ben\extempore` or
-whatever) with the path to the `extempore` folder on **your** machine. Also,
-make sure your user settings file is still valid
-[JSON](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON)
-after you've made your edits.
-
-## Features
-
-- start & manage Extempore processes using the built-in terminal
-- syntax highlighting
-- auto-indent on return
-- snippets (see [snippets file](./snippets/extempore.json))
-
-## TODO
-
-- allow for multiple simultaneous connections (on different host/port)
-- more snippets
-
-## Changelog
-
-- `0.0.1`: initial release
-
-- `0.0.2`: prompt for host/port
-
-- `0.0.3`: add `Extempore Start`, send selected region (if selection is active)
-
-- `0.0.4`: top-level eval, pretty blinking on eval, sharedir stuff
-
-- `0.0.5`:
-  - improved formatting (sets `editor.formatOnType: true` by default)
-  - use `EXTEMPORE_PATH` env var if set
-  - add `Extempore Help` command to jump to docs website
-  - plays nicer with paredit/parinfer
-
-- `0.0.6`: more robust top-level eval (ignores brackets in strings/comments)
-
-- `0.0.7`: more robust top-level eval
-
-- `0.0.8`: actually robust top-level eval (honestly ;)
-
-- `0.0.9`: 
-  - fixed some indenting problems
-  - added selection formatting
-  - added snippets for play, mplay, loop, eloop, mloop, mcc
-
-- `0.1.0`:
-  - change "connect" command to just use default host/port---there's a new
-    "connect to host/port" port when you need something other than the defauly
-  - add an "Extempore: download binary" command (for macOS/Win, anyway)
-  - make "eval" command work when cursor is just _after_ an s-expression
-
-- `0.2.0`:
-  - fix bug where the "download binary" command wasn't activated properly
-
-- `0.2.1`: automatically detect & download the latest release with the "Download
-  Binary" command
-
-- `0.2.2`: no functional changes, but the extension is now bundled by webpack
-  (should be leaner)
-
-- `0.2.3`:
-  - bugfix for broken folder paths (when using the "Download Binary" command)
-  - add "do you want to download this large file" confirmation for Download
-    Binary command
-
-- `0.2.4`: bugfixes for misleading "secondary" error messages
-
-- `0.2.5`: bugfix for incorrect download path in "Download Binary"
-
-- `0.2.6`: make Extempore extension compatible with older VSCode versions
-
-- `0.2.7`: add "start with CLI options" command
-
-- `0.2.8`: refactor Extempore start command
-
-- `0.2.9`: implemented `vscode.DocumentLinkProvider` for links passed to
-  `sys:load` (thanks @stellartux)
-
-- `0.2.10`: fix broken "Download Binary" command (download paths had changed)
-
-## Developer Notes
-
-To work on this VSCode extension (any help is appreciated!) you need to:
-
-1. install the deps with `npm install`
-2. [activate](https://code.visualstudio.com/docs/extensions/example-hello-world#_extension-activation) the extension
-3. make it better
-4. submit a pull request
-
-## Licence
-
-MIT
+Without `$EXTEMPORE` the tests which need a running Extempore are skipped.

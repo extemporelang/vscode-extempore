@@ -3,7 +3,7 @@ import * as vscode from "vscode";
 
 import { downloadExtempore } from "./download";
 import { LegacyTransport } from "./legacy";
-import { Server } from "./server";
+import { type EvalResult, Server } from "./server";
 import { Results } from "./results";
 
 // The language server always runs (formatting and the outline need no running
@@ -105,7 +105,12 @@ const legacyOnly = () => {
   );
 };
 
-export async function activate(context: vscode.ExtensionContext): Promise<void> {
+// The extension's API, for other extensions (and the tests).
+export interface Api {
+  onDidEvaluate: vscode.Event<EvalResult>;
+}
+
+export async function activate(context: vscode.ExtensionContext): Promise<Api> {
   results = new Results();
   const command = (name: string, run: (...args: unknown[]) => unknown) =>
     context.subscriptions.push(vscode.commands.registerCommand(name, run));
@@ -148,6 +153,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     }),
   );
   await setUp();
+  return { onDidEvaluate: results.onDidEvaluate };
 }
 
 export async function deactivate(): Promise<void> {

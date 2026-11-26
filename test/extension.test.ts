@@ -1,6 +1,10 @@
 import * as assert from "node:assert/strict";
+import { type ChildProcess, spawn } from "node:child_process";
 import * as path from "node:path";
 import * as vscode from "vscode";
+
+import type { Api } from "../src/extension";
+import type { EvalResult } from "../src/server";
 
 const extempore = process.env["EXTEMPORE"];
 const fixtures = path.resolve(__dirname, "../../test/fixtures");
@@ -49,5 +53,77 @@ suite("extension", function () {
     await vscode.workspace.applyEdit(edit);
     assert.equal(document.getText(), "(define f\n  (lambda (x)\n    (* x 2)))\n");
     await vscode.commands.executeCommand("workbench.action.files.revert");
+  });
+});
+
+// An extempore in the fixtures folder, so its .nrepl-port is where the
+// language server looks for it.
+function startExtempore(): Promise<ChildProcess> {
+  const child = spawn(
+    extempore!,
+    ["--no-audio", "--color", "never", "--no-legacy-server", "--nrepl-port", "0"],
+    { cwd: fixtures, stdio: ["ignore", "pipe", "pipe"] },
+  );
+  return new Promise((resolve, reject) => {
+    let console = "";
+    const timer = setTimeout(() => reject(new Error(`extempore never started:\n${console}`)), 60000);
+    const read = (chunk: Buffer) => {
+      console += chunk.toString();
+      if (console.includes("nREPL server started")) {
+        clearTimeout(timer);
+        resolve(child);
+      }
+    };
+    child.stdout.on("data", read);
+    child.stderr.on("data", read);
+    child.on("exit", () => reject(new Error(`extempore exited:\n${console}`)));
+  });
+}
+
+suite("evaluation", function () {
+  let xtm: ChildProcess | undefined;
+  let api: Api;
+
+  suiteSetup(async function () {
+    if (!extempore) {
+      this.skip();
+    }
+    xtm = await startExtempore();
+    const extension = vscode.extensions.getExtension<Api>("extemporelang.vscode-extempore")!;
+    api = await extension.activate();
+  });
+
+  suiteTeardown(() => {
+    xtm?.kill();
+  });
+
+  async function evalAt(line: number, character: number): Promise<EvalResult> {
+    const document = await open("eval.xtm");
+    await untilServing(document);
+    const editor = vscode.window.activeTextEditor!;
+    editor.selection = new vscode.Selection(line, character, line, character);
+    const evaluated = new Promise<EvalResult>((resolve) => {
+      const listening = api.onDidEvaluate((result) => {
+        listening.dispose();
+        resolve(result);
+      });
+    });
+    await vscode.commands.executeCommand("extempore.evaluate");
+    return evaluated;
+  }
+
+  test("the form at the cursor", async () => {
+    await evalAt(0, 3);
+    const result = await evalAt(3, 2);
+    assert.deepEqual(result.values, ["42"]);
+    assert.deepEqual(result.range, {
+      start: { line: 2, character: 0 },
+      end: { line: 3, character: 5 },
+    });
+  });
+
+  test("an error", async () => {
+    const result = await evalAt(5, 1);
+    assert.match(result.error?.message ?? "", /car argument, 5, is an integer/);
   });
 });

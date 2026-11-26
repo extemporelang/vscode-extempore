@@ -1,0 +1,6 @@
+(define answer 40)
+
+(+ answer
+   2)
+
+(car 5)

@@ -115,17 +115,14 @@ export class Server {
     await vscode.commands.executeCommand(command, ...args);
   }
 
-  // Shows the answer to an eval at its form, or where the server gives no
-  // range (or answers without evalResults, having said it with showMessage),
-  // not at all.
+  // Shows the answer to an eval. A server without evalResults answers null,
+  // having said it with showMessage.
   private present(argument: unknown, answer: unknown): void {
     const uri = (argument as { uri?: string } | undefined)?.uri;
-    if (!uri || !isEvalResult(answer) || !answer.range) {
-      return;
-    }
     const document = vscode.workspace.textDocuments.find((d) => d.uri.toString() === uri);
-    if (document) {
-      this.results.show(document, this.client.protocol2CodeConverter.asRange(answer.range), answer);
+    if (document && isEvalResult(answer)) {
+      const range = answer.range && this.client.protocol2CodeConverter.asRange(answer.range);
+      this.results.show(document, range, answer);
     }
   }
 

@@ -31,6 +31,9 @@ export function summary(result: EvalResult): string {
 
 export class Results implements vscode.Disposable {
   readonly output = vscode.window.createOutputChannel("Extempore");
+  private readonly evaluated = new vscode.EventEmitter<EvalResult>();
+  // each evaluation's result, as it is shown
+  readonly onDidEvaluate = this.evaluated.event;
   private readonly value = vscode.window.createTextEditorDecorationType({
     after: { margin: "0 0 0 1em", color: new vscode.ThemeColor("editorCodeLens.foreground") },
   });
@@ -54,7 +57,10 @@ export class Results implements vscode.Disposable {
     ];
   }
 
-  show(document: vscode.TextDocument, range: vscode.Range, result: EvalResult): void {
+  // At the end of range, or without one (a file evaluated cleanly) in the
+  // status bar.
+  show(document: vscode.TextDocument, range: vscode.Range | undefined, result: EvalResult): void {
+    this.evaluated.fire(result);
     if (result.out) {
       this.output.append(result.out.endsWith("\n") ? result.out : `${result.out}\n`);
     }
@@ -62,6 +68,10 @@ export class Results implements vscode.Disposable {
       this.output.appendLine(result.error.message);
     }
     const text = summary(result);
+    if (!range) {
+      vscode.window.setStatusBarMessage(`Extempore: ${text || "evaluated"}`, 5000);
+      return;
+    }
     if (!text) {
       return;
     }
@@ -105,5 +115,6 @@ export class Results implements vscode.Disposable {
     this.value.dispose();
     this.error.dispose();
     this.output.dispose();
+    this.evaluated.dispose();
   }
 }

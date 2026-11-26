@@ -1,0 +1,17 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
+      # Without $EXTEMPORE the tests which need an extempore are skipped.
+      - run: xvfb-run -a pnpm test
+      - run: pnpm package
