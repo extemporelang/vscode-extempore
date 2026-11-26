@@ -1,31 +1,21 @@
 {
 	"name": "vscode-extempore",
 	"displayName": "Extempore",
-	"description": "Extempore language support for VSCode",
-	"version": "0.2.10",
+	"description": "Extempore language support for VS Code",
+	"version": "0.3.0",
 	"publisher": "extemporelang",
-	"engines": {
-		"vscode": "^1.85.0"
-	},
 	"license": "MIT",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/extemporelang/vscode-extempore"
 	},
+	"engines": {
+		"vscode": "^1.100.0"
+	},
 	"categories": [
 		"Programming Languages"
 	],
-	"activationEvents": [
-		"onCommand:extension.xtmdownloadbinary",
-		"onCommand:extension.xtmstart",
-		"onCommand:extension.xtmconnect",
-		"onCommand:extension.xtmconnecthostport",
-		"onCommand:extension.xtmeval",
-		"onCommand:extension.xtmdisconnect",
-		"onCommand:extension.xtmhelp",
-		"onLanguage:extempore"
-	],
-	"main": "./dist/extension",
+	"main": "./dist/extension.js",
 	"contributes": {
 		"languages": [
 			{
@@ -40,45 +30,11 @@
 				"configuration": "./language-configuration.json"
 			}
 		],
-		"configuration": {
-			"type": "object",
-			"title": "Extempore",
-			"properties": {
-				"extempore.sharedir": {
-					"type": "string",
-					"default": ".",
-					"description": "Location of the Extempore share directory"
-				},
-				"extempore.hostname": {
-					"type": "string",
-					"default": "localhost",
-					"description": "Default server hostname"
-				},
-				"extempore.port": {
-					"type": "integer",
-					"default": 7099,
-					"description": "Default server port"
-				}
-			}
-		},
-		"configurationDefaults": {
-			"[extempore]": {
-				"editor.formatOnType": true
-			}
-		},
 		"grammars": [
 			{
 				"language": "extempore",
 				"scopeName": "source.extempore",
 				"path": "./syntaxes/extempore.tmLanguage.json"
-			}
-		],
-		"keybindings": [
-			{
-				"key": "ctrl+enter",
-				"mac": "cmd+enter",
-				"command": "extension.xtmeval",
-				"when": "editorTextFocus && editorLangId == extempore"
 			}
 		],
 		"snippets": [
@@ -87,58 +43,187 @@
 				"path": "./snippets/extempore.json"
 			}
 		],
+		"configuration": {
+			"title": "Extempore",
+			"properties": {
+				"extempore.transport": {
+					"type": "string",
+					"enum": [
+						"nrepl",
+						"legacy"
+					],
+					"enumDescriptions": [
+						"Talk to extempore's nREPL server through its language server (`extempore lsp`): completion, hover, formatting and errors marked in the editor.",
+						"Send code to the eval server on port 7099 over a raw socket, for an extempore older than the nREPL server."
+					],
+					"default": "nrepl",
+					"markdownDescription": "How the extension talks to extempore."
+				},
+				"extempore.executable": {
+					"type": "string",
+					"default": "extempore",
+					"markdownDescription": "The `extempore` binary: a name on `PATH`, or a path to it. It runs the language server and `Extempore: Start`."
+				},
+				"extempore.nrepl.host": {
+					"type": "string",
+					"default": "127.0.0.1",
+					"markdownDescription": "Host of extempore's nREPL server."
+				},
+				"extempore.nrepl.port": {
+					"type": [
+						"integer",
+						"null"
+					],
+					"default": null,
+					"markdownDescription": "Port of extempore's nREPL server. Unset, it is `$EXTEMPORE_NREPL_PORT`, then the port in a `.nrepl-port` file in the file's directory or above it, then 7888."
+				},
+				"extempore.nrepl.process": {
+					"type": "string",
+					"default": "",
+					"markdownDescription": "The Scheme process to evaluate in (`utility`, or one made with `ipc:new`). Empty is the primary process."
+				},
+				"extempore.sharedir": {
+					"type": "string",
+					"default": "",
+					"markdownDescription": "The extempore folder (the one with `libs` and `runtime`), where `Extempore: Start` runs extempore. Empty is `$EXTEMPORE_PATH`, then the workspace folder."
+				},
+				"extempore.hostname": {
+					"type": "string",
+					"default": "localhost",
+					"markdownDeprecationMessage": "Used only by the legacy transport.",
+					"description": "Host of the legacy eval server."
+				},
+				"extempore.port": {
+					"type": "integer",
+					"default": 7099,
+					"markdownDeprecationMessage": "Used only by the legacy transport.",
+					"description": "Port of the legacy eval server."
+				}
+			}
+		},
+		"configurationDefaults": {
+			"[extempore]": {
+				"editor.formatOnType": true
+			}
+		},
 		"commands": [
 			{
-				"command": "extension.xtmdownloadbinary",
-				"title": "Extempore: Download binary"
+				"command": "extempore.evaluate",
+				"title": "Evaluate top-level form or selection",
+				"category": "Extempore"
 			},
 			{
-				"command": "extension.xtmstart",
-				"title": "Extempore: Start"
+				"command": "extempore.evaluateFile",
+				"title": "Evaluate file",
+				"category": "Extempore"
 			},
 			{
-				"command": "extension.xtmconnect",
-				"title": "Extempore: Connect"
+				"command": "extempore.interruptEvaluation",
+				"title": "Interrupt evaluation",
+				"category": "Extempore"
 			},
 			{
-				"command": "extension.xtmconnecthostport",
-				"title": "Extempore: Connect to host:port"
+				"command": "extempore.start",
+				"title": "Start",
+				"category": "Extempore"
 			},
 			{
-				"command": "extension.xtmeval",
-				"title": "Extempore: Eval"
+				"command": "extempore.restartLanguageServer",
+				"title": "Restart language server",
+				"category": "Extempore"
 			},
 			{
-				"command": "extension.xtmdisconnect",
-				"title": "Extempore: Disconnect"
+				"command": "extempore.connect",
+				"title": "Connect (legacy)",
+				"category": "Extempore"
 			},
 			{
-				"command": "extension.xtmhelp",
-				"title": "Extempore: Help"
+				"command": "extempore.connectHostPort",
+				"title": "Connect to host:port (legacy)",
+				"category": "Extempore"
+			},
+			{
+				"command": "extempore.disconnect",
+				"title": "Disconnect (legacy)",
+				"category": "Extempore"
+			},
+			{
+				"command": "extempore.downloadBinary",
+				"title": "Download binary",
+				"category": "Extempore"
+			},
+			{
+				"command": "extempore.help",
+				"title": "Help",
+				"category": "Extempore"
+			}
+		],
+		"menus": {
+			"commandPalette": [
+				{
+					"command": "extempore.interruptEvaluation",
+					"when": "config.extempore.transport == nrepl"
+				},
+				{
+					"command": "extempore.restartLanguageServer",
+					"when": "config.extempore.transport == nrepl"
+				},
+				{
+					"command": "extempore.connect",
+					"when": "config.extempore.transport == legacy"
+				},
+				{
+					"command": "extempore.connectHostPort",
+					"when": "config.extempore.transport == legacy"
+				},
+				{
+					"command": "extempore.disconnect",
+					"when": "config.extempore.transport == legacy"
+				}
+			]
+		},
+		"keybindings": [
+			{
+				"key": "ctrl+enter",
+				"mac": "cmd+enter",
+				"command": "extempore.evaluate",
+				"when": "editorTextFocus && editorLangId == extempore"
+			},
+			{
+				"key": "ctrl+shift+enter",
+				"mac": "cmd+shift+enter",
+				"command": "extempore.evaluateFile",
+				"when": "editorTextFocus && editorLangId == extempore"
+			},
+			{
+				"key": "ctrl+alt+c",
+				"mac": "cmd+alt+c",
+				"command": "extempore.interruptEvaluation",
+				"when": "editorLangId == extempore && config.extempore.transport == nrepl"
 			}
 		]
 	},
 	"scripts": {
-		"vscode:prepublish": "webpack --mode production",
-		"webpack": "webpack --mode development",
-		"webpack-dev": "webpack --mode development --watch",
-		"test-compile": "tsc -p ./"
-	},
-	"devDependencies": {
-		"@types/node": "^20.19.43",
-		"@types/vscode": "~1.85.0",
-		"@types/yauzl": "^3.4.0",
-		"ts-loader": "^9.6.2",
-		"typescript": "^6.0.3",
-		"webpack": "^5.112.2",
-		"webpack-cli": "^7.2.3"
-	},
-	"__metadata": {
-		"id": "6bd0a283-df9a-425a-b080-b3781cb08aad",
-		"publisherDisplayName": "Extempore",
-		"publisherId": "9c34a9a3-631d-402a-b6d4-f360bb1d348b"
+		"build": "node esbuild.mjs",
+		"watch": "node esbuild.mjs --watch",
+		"check": "tsc --noEmit",
+		"test": "pnpm build && tsc -p test && vscode-test",
+		"package": "vsce package --no-dependencies",
+		"vscode:prepublish": "node esbuild.mjs --production"
 	},
 	"dependencies": {
+		"vscode-languageclient": "^11.0.0",
 		"yauzl": "^3.4.0"
+	},
+	"devDependencies": {
+		"@types/mocha": "^10.0.10",
+		"@types/node": "^20.19.0",
+		"@types/vscode": "~1.100.0",
+		"@types/yauzl": "^3.4.0",
+		"@vscode/test-cli": "^0.0.15",
+		"@vscode/test-electron": "^3.1.0",
+		"@vscode/vsce": "^4.1.1",
+		"esbuild": "^0.28.0",
+		"typescript": "^7.0.2"
 	}
 }

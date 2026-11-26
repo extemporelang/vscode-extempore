@@ -1,416 +1,156 @@
-'use strict';
+import * as path from "node:path";
+import * as vscode from "vscode";
 
-// vscode
-import * as vscode from 'vscode';
+import { downloadExtempore } from "./download";
+import { LegacyTransport } from "./legacy";
+import { Server } from "./server";
+import { Results } from "./results";
 
-// node
-import { env } from 'process';
-import { platform } from 'os';
-import * as fs from 'fs';
-import * as path from 'path';
-import { setTimeout } from 'timers';
-import { Socket } from 'net';
-import { spawnSync } from 'child_process';
-import { Readable } from 'stream';
-import { pipeline } from 'stream/promises';
-import * as os from 'os';
-import * as yauzl from 'yauzl';
+// The language server always runs (formatting and the outline need no running
+// extempore); evaluation goes through it, or with the legacy transport over a
+// socket to the eval server.
+let server: Server | undefined;
+let legacy: LegacyTransport | undefined;
+let results: Results;
+let terminal: vscode.Terminal | undefined;
 
-// Extempore extension
-import { xtmIndent, xtmTopLevelSexpr, xtmGetBlock } from './sexpr';
+function config() {
+  return vscode.workspace.getConfiguration("extempore");
+}
 
-export function activate(context: vscode.ExtensionContext) {
+async function setUp(): Promise<void> {
+  const useLegacy = config().get<string>("transport") === "legacy";
+  legacy = useLegacy ? new LegacyTransport() : undefined;
+  server = new Server(config().get<string>("executable") || "extempore", results);
+  await server.start(useLegacy);
+}
 
-    context.subscriptions.push(
-        vscode.commands.registerCommand('extension.xtmdownloadbinary', () => downloadExtemporeBinary()));
+async function tearDown(): Promise<void> {
+  legacy?.dispose();
+  legacy = undefined;
+  await server?.stop();
+  server = undefined;
+}
 
-    context.subscriptions.push(
-        vscode.commands.registerCommand('extension.xtmstart', () => startExtemporeInTerminal()));
+// The extempore folder: the setting, then $EXTEMPORE_PATH, then the first
+// workspace folder.
+function sharedir(): string | undefined {
+  return (
+    config().get<string>("sharedir") ||
+    process.env["EXTEMPORE_PATH"] ||
+    vscode.workspace.workspaceFolders?.[0]?.uri.fsPath
+  );
+}
 
-    context.subscriptions.push(
-        vscode.commands.registerCommand('extension.xtmconnect', () => connectCommand()));
+function startInTerminal(): void {
+  terminal?.dispose();
+  terminal = vscode.window.createTerminal({
+    name: "Extempore",
+    cwd: sharedir(),
+    shellPath: config().get<string>("executable") || "extempore",
+    shellArgs: [],
+  });
+  terminal.show(true);
+}
 
-    context.subscriptions.push(
-        vscode.commands.registerCommand('extension.xtmconnecthostport', () => connectToHostPortCommand()));
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand('extension.xtmeval', () => {
-            const document = vscode.window.activeTextEditor.document;
-            const editor = vscode.window.activeTextEditor;
-            let evalRange: vscode.Range;
-
-            if (!editor.selection.isEmpty) {
-                // if there's a selection active, use that
-                evalRange = editor.selection;
-            } else {
-                let offset = document.offsetAt(editor.selection.active);
-                const charsAround = document.getText(
-                    new vscode.Range(document.positionAt(offset - 1),
-                        document.positionAt(offset + 1)));
-
-                // hack for handling the special case where the cursor is just outside a
-                // final closing bracket (so we do evaluate that form)
-                if (charsAround[0] == ")" && charsAround[1] != ")") {
-                    offset -= 1;
-                }
-
-                // figure out exactly what expression to send to Extempore
-                const xtmBlock: [number, number, string] = xtmGetBlock(document.getText(), offset);
-                //console.log(`xtmblk: '${xtmBlock[2]}'`);
-                const xtmExpr = xtmTopLevelSexpr(xtmBlock[2], offset - xtmBlock[0]);
-                //console.log(`xtmexp: ${JSON.stringify(xtmExpr)}`);
-                const start = document.positionAt(xtmExpr[0] + xtmBlock[0]);
-                const end = document.positionAt(xtmExpr[1] + 1 + xtmBlock[0]);
-                evalRange = new vscode.Range(start, end);
-            }
-            if (evalRange) {
-                try {
-                    sendToProcess(vscode.window.activeTextEditor.document.getText(evalRange));
-                    blinkRange(evalRange);
-                } catch (error) {
-                    vscode.window.showErrorMessage("Extempore: error sending code to process---do you need to connect?")
-                }
-            }
-        }));
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand('extension.xtmdisconnect',
-            () => _socket.destroy()));
-
-    // eventually the help command should do more than just jump to
-    // the main Extempore page but this is better than nothing for now
-    context.subscriptions.push(
-        vscode.commands.registerCommand('extension.xtmhelp',
-            () => vscode.commands.executeCommand('vscode.open', vscode.Uri.parse('https://extemporelang.github.io/'))));
-
-    if (shouldUseFormatter()) {
-        let indentDisposable = vscode.languages.registerOnTypeFormattingEditProvider('extempore', {
-            provideOnTypeFormattingEdits(document: vscode.TextDocument, position: vscode.Position, ch: string, options: vscode.FormattingOptions, token: vscode.CancellationToken): vscode.ProviderResult<vscode.TextEdit[]> {
-                let previousLines = new vscode.Position(0, 0);
-                let backRange = new vscode.Range(previousLines, position);
-                let txtstr = document.getText(backRange);
-                let indent = xtmIndent(txtstr);
-
-                vscode.window.activeTextEditor.edit((edit) => {
-                    let pos = vscode.window.activeTextEditor.selection.active;
-                    let startOfLine = new vscode.Position(pos.line, 0);
-                    let sol = new vscode.Range(startOfLine, pos);
-                    edit.delete(sol);
-                    let emptyStr = ' '.repeat(indent);
-                    edit.insert(startOfLine, emptyStr);
-                });
-                return null;
-            }
-        }, '\n');
-        context.subscriptions.push(indentDisposable);
-
-        let indentDisposable2 = vscode.languages.registerDocumentRangeFormattingEditProvider('extempore', {
-            provideDocumentRangeFormattingEdits(document: vscode.TextDocument, range: vscode.Range, options: vscode.FormattingOptions, token: vscode.CancellationToken): vscode.ProviderResult<vscode.TextEdit[]> {
-                let line = range.start.line;
-                let line_end = range.end.line;
-                let lines1000 = new vscode.Position((line - 1000 < 0) ? 0 : line - 1000, 0);
-                let prevLines = new vscode.Range(lines1000, range.start);
-                let s1 = document.getText(prevLines);
-                let indent = xtmIndent(s1);
-                let newstr = "";
-
-                for (; line <= line_end; line++) {
-                    let pos = new vscode.Position(line, 0);
-                    let pos2 = new vscode.Position(line + 1, 0);
-                    let linerng = new vscode.Range(pos, pos2);
-                    let linestr = document.getText(linerng).trim();
-                    newstr += ' '.repeat(indent) + linestr;
-                    if (line < line_end) {
-                        newstr += '\n';
-                    }
-                    indent = xtmIndent(newstr);
-                }
-                vscode.window.activeTextEditor.edit((edit) => {
-                    edit.replace(range, newstr);
-                });
-                return null;
-            }
-        });
-        context.subscriptions.push(indentDisposable2);
+function withEditor(run: (editor: vscode.TextEditor) => unknown): () => unknown {
+  return () => {
+    const editor = vscode.window.activeTextEditor;
+    if (editor?.document.languageId === "extempore") {
+      return run(editor);
     }
-
-    context.subscriptions.push(
-        vscode.languages.registerDocumentLinkProvider('extempore', {
-            provideDocumentLinks(document: vscode.TextDocument, _token: vscode.CancellationToken): vscode.ProviderResult<vscode.DocumentLink[]> {
-                const results: vscode.DocumentLink[] = [];
-                for (const match of document.getText().matchAll(/(?<=\(sys:load ").+?\..+?(?=")/g)) {
-                    let path = match[0];
-                    // if it's not an absolute path
-                    if (!/^([\\\/~]|.+:[\\/])/.test(path)) {
-                        path = getExtemporePath()?.concat('/', path);
-                        if (!path) {
-                            continue;
-                        }
-                    }
-                    results.push(new vscode.DocumentLink(
-                        new vscode.Range(document.positionAt(match.index), document.positionAt(match.index + match[0].length)),
-                        vscode.Uri.file(path))
-                    );
-                }
-                return results;
-            }
-        })
-    );
+    return undefined;
+  };
 }
 
-export function dispose() {
-    _socket.destroy();
-    _terminal.dispose();
+async function connectHostPort(): Promise<void> {
+  const hostname = await vscode.window.showInputBox({
+    prompt: "Hostname",
+    value: config().get("hostname"),
+  });
+  const port = await vscode.window.showInputBox({
+    prompt: "Port",
+    value: String(config().get("port")),
+  });
+  if (hostname && port) {
+    legacy?.connect(hostname, Number.parseInt(port, 10));
+  }
 }
 
-let _socket: Socket;
-let _terminal: vscode.Terminal;
-
-// unless paredit or parinfer are active, use the extempore formatter
-let shouldUseFormatter = (): boolean => {
-    for (const extensionId of ['clptn.code-paredit', 'shaunlebron.vscode-parinfer']) {
-        let ext = vscode.extensions.getExtension(extensionId);
-        if (ext && ext.isActive) {
-            return false;
-        }
+// `(sys:load "libs/core/instruments.xtm")` links to the file, relative to the
+// extempore folder.
+const loadLinks: vscode.DocumentLinkProvider = {
+  provideDocumentLinks(document) {
+    const links: vscode.DocumentLink[] = [];
+    for (const match of document.getText().matchAll(/(?<=\(sys:load ")[^"]+\.[^"]+(?=")/g)) {
+      const base = sharedir();
+      const file = path.isAbsolute(match[0]) ? match[0] : base && path.join(base, match[0]);
+      if (file) {
+        const start = document.positionAt(match.index);
+        links.push(
+          new vscode.DocumentLink(
+            new vscode.Range(start, start.translate(0, match[0].length)),
+            vscode.Uri.file(file),
+          ),
+        );
+      }
     }
-    return true;
-}
-
-let extemporeExecutableCommand = (): string => {
-    if (platform() === "win32") {
-        return ".\\extempore.exe"
-    } else {
-        if (spawnSync("which", ["extempore"]).status === 0) {
-            // extempore's on $PATH
-            return "extempore";
-        } else {
-            return "./extempore";
-        }
-    }
-}
-
-let getExtemporePath = (): string => {
-    const config: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("extempore");
-    if (env["EXTEMPORE_PATH"]) {
-        return env["EXTEMPORE_PATH"];
-    } else if (config.has("sharedir")) {
-        return config.get("sharedir");
-    } else if (vscode.workspace.rootPath) {
-        return vscode.workspace.rootPath;
-    } else {
-        return undefined;
-    }
-}
-
-let blinkRange = (range: vscode.Range) => {
-    let decoration = vscode.window.createTextEditorDecorationType({
-        color: "#000",
-        backgroundColor: "#fd971f"
-    });
-    vscode.window.activeTextEditor.setDecorations(decoration, [range]);
-    setTimeout(() => decoration.dispose(), 500);
-}
-
-let sendToProcess = (str: string) => {
-    // get the string ready for sending over the nextwork
-    // make sure it's got the CRLF line ending Extempore expects
-    _socket.write(str.replace(/(\r\n|\n|\r)/gm, "\x0A").concat("\r\n"));
-}
-
-// start Extempore in a new Terminal
-let startExtemporeInTerminal = () => {
-    // if there's already an Extempore terminal running, kill it
-    if (_terminal) {
-        _terminal.dispose();
-    }
-    // find the path to the extempore folder
-    const sharedir = getExtemporePath();
-
-    if (!sharedir) {
-        vscode.window.showErrorMessage("Extempore: can't find extempore folder. Set extempore.sharedir in the VSCode settings.");
-        return;
-    }
-
-    _terminal = vscode.window.createTerminal("Extempore");
-    _terminal.show(true); // show, but don't steal focus
-    _terminal.sendText(`cd ${sharedir}`);
-    _terminal.sendText(extemporeExecutableCommand());
+    return links;
+  },
 };
 
-let connectExtempore = (hostname: string, port: number) => {
-    // create Extempore socket
-    _socket = new Socket();
-    _socket.setEncoding('ascii');
-    _socket.setKeepAlive(true);
-
-    // set socket callbacks
-    _socket.connect(port, hostname, () => {
-        vscode.window.setStatusBarMessage(`Extempore: connected to port ${port}`);
-    });
-    _socket.on('data', (data) => {
-        vscode.window.setStatusBarMessage(data.toString());
-    });
-    _socket.on('close', () => {
-        vscode.window.setStatusBarMessage(`Extempore: connection to port ${port} closed`);
-    });
-    _socket.on('error', (err) => {
-        vscode.window.showErrorMessage(`Extempore: socket connection error "${err.message}"`);
-    })
-}
-
-// connect to extempore with defaults
-let connectCommand = () => {
-    const config = vscode.workspace.getConfiguration("extempore");
-    connectExtempore(config.get("hostname"), config.get("port"));
+const legacyOnly = () => {
+  void vscode.window.showInformationMessage(
+    "Extempore: that command is for the legacy transport (extempore.transport)",
+  );
 };
 
-// connect to extempore
-let connectToHostPortCommand = async () => {
-    const hostname: string = await vscode.window.showInputBox({ prompt: 'Hostname', value: 'localhost' });
-    const portString: string = await vscode.window.showInputBox({ prompt: 'Port number', value: '7099' });
-    const port: number = parseInt(portString);
-    connectExtempore(hostname, port);
-};
+export async function activate(context: vscode.ExtensionContext): Promise<void> {
+  results = new Results();
+  const command = (name: string, run: (...args: unknown[]) => unknown) =>
+    context.subscriptions.push(vscode.commands.registerCommand(name, run));
 
-// download & setup Extempore
+  command(
+    "extempore.evaluate",
+    withEditor((editor) => (legacy ? legacy.eval(editor) : server?.eval(editor))),
+  );
+  command(
+    "extempore.evaluateFile",
+    withEditor((editor) => (legacy ? legacy.evalBuffer(editor) : server?.evalBuffer(editor))),
+  );
+  command("extempore.interruptEvaluation", () => server?.interrupt());
+  command("extempore.restartLanguageServer", () => server?.restart());
+  command("extempore.start", startInTerminal);
+  command("extempore.connect", () =>
+    legacy
+      ? legacy.connect(config().get("hostname") ?? "localhost", config().get("port") ?? 7099)
+      : legacyOnly(),
+  );
+  command("extempore.connectHostPort", () => (legacy ? connectHostPort() : legacyOnly()));
+  command("extempore.disconnect", () => (legacy ? legacy.disconnect() : legacyOnly()));
+  command("extempore.downloadBinary", downloadExtempore);
+  command("extempore.help", () =>
+    vscode.env.openExternal(vscode.Uri.parse("https://extemporelang.github.io/")),
+  );
 
-let downloadExtemporeBinary = async () => {
-
-    const tagResponse = await fetch(
-        "https://api.github.com/repos/digego/extempore/releases/latest",
-        { headers: { 'Accept': 'application/vnd.github+json' } }
-    );
-    if (!tagResponse.ok) {
-        vscode.window.showErrorMessage(`Extempore: error fetching latest release (HTTP ${tagResponse.status})`);
-        return;
-    }
-    const tagData: any = await tagResponse.json();
-    const extemporeVersion: string = tagData["tag_name"];
-
-    if (!extemporeVersion) {
-        vscode.window.showErrorMessage('Extempore: error fetching latest release tag name');
-        return;
-    }
-
-    if (await vscode.window.showWarningMessage(`The Extempore ${extemporeVersion} download is ~300MB, are you ok to download it?`, "Ok", "Cancel") != "Ok") {
-        vscode.window.showErrorMessage('Extempore: cancelled binary download');
-        return;
-    }
-
-    const releaseFileMap = {
-        'win32': `extempore-${extemporeVersion}-windows-2019`,
-        'darwin': `extempore-${extemporeVersion}-macos-11.0`,
-        'linux': `extempore-${extemporeVersion}-ubuntu-20.04`
-    }
-
-    if (!(platform() in releaseFileMap)) {
-        vscode.window.showErrorMessage('Extempore: binary download currently only available for macOS, Windows & Linux (Ubuntu)');
-		return;
-    }
-    const releaseFile: string = releaseFileMap[platform()];
-    const matchingAssets = tagData["assets"].filter(asset => asset["name"] === releaseFile + ".zip");
-    const assetUri: string = matchingAssets[0]["browser_download_url"];
-
-
-    // where should we put it?
-    const downloadDir: string = await vscode.window.showOpenDialog(
-        {
-            canSelectFiles: false,
-            canSelectFolders: true,
-            canSelectMany: false,
-            openLabel: 'Choose Download Location'
-        }).then(fileUris => fileUris[0].fsPath);
-
-	const sharedir: string = path.join(downloadDir, "extempore");
-    if (fs.existsSync(sharedir)) {
-        vscode.window.showErrorMessage(`Extempore: sorry, ${sharedir} already exists.`);
-		return;
-    }
-
-    // now, actually download the thing
-    try {
-        await downloadAndExtract(assetUri, path.dirname(sharedir), (percent) => {
-            vscode.window.setStatusBarMessage(`Extempore: download ${extemporeVersion} ${percent.toFixed(1)}% complete`);
-        });
-    } catch (reason) {
-        vscode.window.showErrorMessage(`Extempore: error downloading binary "${reason}"`);
-        return;
-    }
-    const config = vscode.workspace.getConfiguration("extempore");
-    config.update("sharedir", sharedir, true);
-    vscode.window.showInformationMessage(`Extempore: successfully downloaded ${extemporeVersion} to ${sharedir}\n`
-        + 'also updating extempore.sharedir config setting');
+  context.subscriptions.push(
+    results,
+    vscode.languages.registerDocumentLinkProvider("extempore", loadLinks),
+    vscode.workspace.onDidChangeConfiguration(async (event) => {
+      if (
+        ["extempore.transport", "extempore.executable", "extempore.nrepl"].some((s) =>
+          event.affectsConfiguration(s),
+        )
+      ) {
+        await tearDown();
+        await setUp();
+      }
+    }),
+  );
+  await setUp();
 }
 
-// download a zip to a temp file (reporting progress), then extract it into destDir
-async function downloadAndExtract(url: string, destDir: string, onProgress: (percent: number) => void): Promise<void> {
-    const response = await fetch(url, { signal: AbortSignal.timeout(10 * 60 * 1000) });
-    if (!response.ok || !response.body) {
-        throw new Error(`HTTP ${response.status} fetching ${url}`);
-    }
-    const total = Number(response.headers.get('content-length')) || 0;
-    let received = 0;
-    const body = Readable.fromWeb(response.body as any);
-    body.on('data', (chunk: Buffer) => {
-        received += chunk.length;
-        if (total) { onProgress(received / total * 100); }
-    });
-
-    const tmpDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'extempore-'));
-    const zipPath = path.join(tmpDir, 'extempore.zip');
-    try {
-        await pipeline(body, fs.createWriteStream(zipPath));
-        await extractZip(zipPath, destDir);
-    } finally {
-        await fs.promises.rm(tmpDir, { recursive: true, force: true });
-    }
-}
-
-// extract a zip, refusing any entry that would land outside destDir
-function extractZip(zipPath: string, destDir: string): Promise<void> {
-    const root = path.resolve(destDir);
-    const inside = (p: string) => p === root || p.startsWith(root + path.sep);
-    return new Promise((resolve, reject) => {
-        yauzl.open(zipPath, { lazyEntries: true }, (err, zipfile) => {
-            if (err || !zipfile) { return reject(err); }
-            const fail = (e: Error) => { zipfile.close(); reject(e); };
-            zipfile.on('error', fail);
-            zipfile.on('end', () => resolve());
-            zipfile.on('entry', async (entry: yauzl.Entry) => {
-                try {
-                    const target = path.resolve(root, entry.fileName);
-                    if (!inside(target)) { throw new Error(`unsafe path in zip: ${entry.fileName}`); }
-                    const mode = (entry.externalFileAttributes >>> 16) & 0o177777;
-                    const isSymlink = (mode & 0o170000) === 0o120000;
-                    if (entry.fileName.endsWith('/')) {
-                        await fs.promises.mkdir(target, { recursive: true });
-                    } else {
-                        await fs.promises.mkdir(path.dirname(target), { recursive: true });
-                        const stream = await new Promise<Readable>((res, rej) =>
-                            zipfile.openReadStream(entry, (e, s) => e || !s ? rej(e) : res(s)));
-                        if (isSymlink) {
-                            const linkTarget = (await streamToBuffer(stream)).toString();
-                            if (!inside(path.resolve(path.dirname(target), linkTarget))) {
-                                throw new Error(`unsafe symlink in zip: ${entry.fileName} -> ${linkTarget}`);
-                            }
-                            await fs.promises.symlink(linkTarget, target);
-                        } else {
-                            await pipeline(stream, fs.createWriteStream(target, { mode: (mode & 0o777) || 0o644 }));
-                        }
-                    }
-                    zipfile.readEntry();
-                } catch (e) {
-                    fail(e as Error);
-                }
-            });
-            zipfile.readEntry();
-        });
-    });
-}
-
-async function streamToBuffer(stream: Readable): Promise<Buffer> {
-    const chunks: Buffer[] = [];
-    for await (const chunk of stream) { chunks.push(chunk as Buffer); }
-    return Buffer.concat(chunks);
+export async function deactivate(): Promise<void> {
+  terminal?.dispose();
+  await tearDown();
 }

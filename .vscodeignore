@@ -1,8 +1,9 @@
-.vscode
-.gitignore
-node_modules
-out/
-src/
-tsconfig.json
-webpack.config.js
-vsc-extension-quickstart.md
+**
+!dist/extension.js
+!syntaxes/**
+!snippets/**
+!language-configuration.json
+!README.md
+!CHANGELOG.md
+!LICENSE
+!package.json
