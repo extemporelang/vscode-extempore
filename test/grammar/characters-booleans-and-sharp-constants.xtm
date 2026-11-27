@@ -1,0 +1,38 @@
+; SYNTAX TEST "source.extempore" "characters, booleans and sharp constants"
+ #\a #\( #\) #\; #\space #\newline #\return #\tab #\x41
+;^^^ constant.character.extempore
+;    ^^^ constant.character.extempore
+;        ^^^ constant.character.extempore
+;            ^^^ constant.character.extempore
+;                ^^^^^^^ constant.character.extempore
+;                        ^^^^^^^^^ constant.character.extempore
+;                                  ^^^^^^^^ constant.character.extempore
+;                                           ^^^^^ constant.character.extempore
+;                                                 ^^^^^ constant.character.extempore
+ (foo #\( bar)
+; ^^^ entity.name.function.call.extempore
+;     ^^^ constant.character.extempore
+;         ^^^ - entity.name.function.call.extempore
+ #t #f #T #F
+;^^ constant.language.boolean.extempore
+;   ^^ constant.language.boolean.extempore
+;      ^^ constant.language.boolean.extempore
+;         ^^ constant.language.boolean.extempore
+ #true #<eof> #_format
+;^^^^^ constant.language.extempore - constant.language.boolean.extempore
+;      ^^^^^^ constant.language.extempore
+;             ^^^^^^^^ constant.language.extempore
+ null NULL
+;^^^^ constant.language.null.extempore
+;     ^^^^ constant.other.extempore
+ SAMPLE_RATE PI i64 void f32 (cast x i64)
+;^^^^^^^^^^^ constant.other.extempore
+;            ^^ constant.other.extempore
+;               ^^^ storage.type.primitive.extempore
+;                   ^^^^ storage.type.primitive.extempore
+;                        ^^^ storage.type.primitive.extempore
+ my-null null? nullish a-i64
+;^^^^^^^ - constant.language.null.extempore
+;        ^^^^^ - constant.language.null.extempore
+;              ^^^^^^^ - constant.language.null.extempore
+;                      ^^^^^ - storage.type.primitive.extempore

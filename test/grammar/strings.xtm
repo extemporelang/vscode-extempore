@@ -1,0 +1,19 @@
+; SYNTAX TEST "source.extempore" "strings"
+ "plain" 1
+;^^^^^^^ string.quoted.double.extempore
+;        ^ constant.numeric.integer.extempore
+ "a\"b\n\x41;\q" 1
+;  ^^ constant.character.escape.extempore
+;     ^^ constant.character.escape.extempore
+;       ^^^^ constant.character.escape.extempore
+;            ^^ constant.character.escape.extempore
+;                ^ constant.numeric.integer.extempore
+ "; not (a comment" 1
+; ^^^^^ string.quoted.double.extempore - comment.line.semicolon.extempore
+;                   ^ constant.numeric.integer.extempore
+ "spans
+;^^^^^^ string.quoted.double.extempore
+ (define x 1) lines" 1
+;^^^^^^^^^^^^^^^^^^ string.quoted.double.extempore - storage.type.extempore
+;                  ^ string.quoted.double.extempore punctuation.definition.string.end.extempore
+;                    ^ constant.numeric.integer.extempore

@@ -1,86 +1,1076 @@
 {
 	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
 	"name": "Extempore",
+	"scopeName": "source.extempore",
 	"patterns": [
 		{
-			"include": "#comments"
-		},
-		{
-			"include": "#keywords"
-		},
-		{ 
-			"include": "#operators"
-		},
-		{
-			"include": "#types"
-		},
-		{
-			"include": "#names"
-		},
-		{
-			"include": "#number"
-		},
-		{
-			"include": "#cstring"
-		},
-		{ 
-			"include": "#xtmsymbol"
+			"include": "#expression"
 		}
 	],
 	"repository": {
-		"comments": {
-			"patterns": [{
-				"name": "comment",
-				"match": ";.*$"
-			}]
-		},
-		"keywords": {
-			"patterns": [{
-				"name": "keyword.control.extempore",
-				"match": "\\b(alloc|zalloc|halloc|salloc|letz|beginz|vector|vector_ref|tuple|tuple_ref|array|array_ref|begin|cond|else|or|and|void|lambda|define|if|pref-ptr|aref-ptr|tref-ptr|pfill|tfill|aref|tref|pref|aset|tset|pset|set|while|dotimes|let|bind-func|bind-lib|bind-val|bind-type)\\b"
-			}]
-		},
-		"operators": {
-			"patterns": [{
-				"name": "keyword.operator.extempore",
-				"match": "\\b(\\*|\\+)\\b"
-			}]
-		},
-		"types": {
-			"patterns": [{
-				"name": "entity.name.type.extempore",
-				"match": ":[a-zA-Z|/<\\[][a-zA-Z0-9*|/,<>{}\\]]+"
-			}]
-		},
-		"names": {
-			"patterns": [{
-				"name": "entity.name.extempore",
-				"match": "[a-zA-Z][a-zA-Z0-9-_]+"
-			}]
-		},
-		"number": {
-			"patterns": [{
-				"name": "constant.numeric.extempore",
-				"match": "[0-9]+(\\.[0-9]*)?"
-			}]
-		},
-		"cstring": {
-			"name": "string.quoted.double.extempore",
-			"begin": "\"",
-			"end": "\"",
+		"expression": {
 			"patterns": [
 				{
-					"name": "constant.character.escape.extempore",
+					"include": "#block-comment"
+				},
+				{
+					"include": "#datum-comment"
+				},
+				{
+					"include": "#line-comment"
+				},
+				{
+					"include": "#shebang"
+				},
+				{
+					"include": "#string"
+				},
+				{
+					"include": "#boolean"
+				},
+				{
+					"include": "#number"
+				},
+				{
+					"include": "#character"
+				},
+				{
+					"include": "#sharp-constant"
+				},
+				{
+					"include": "#vector"
+				},
+				{
+					"include": "#unquote-splicing"
+				},
+				{
+					"include": "#unquote"
+				},
+				{
+					"include": "#quasiquote"
+				},
+				{
+					"include": "#quoted-list"
+				},
+				{
+					"include": "#quoted-symbol"
+				},
+				{
+					"include": "#quote"
+				},
+				{
+					"include": "#generic-type"
+				},
+				{
+					"include": "#typed-symbol"
+				},
+				{
+					"include": "#bracket-type"
+				},
+				{
+					"include": "#null"
+				},
+				{
+					"include": "#constant"
+				},
+				{
+					"include": "#builtin-type"
+				},
+				{
+					"include": "#dot"
+				},
+				{
+					"include": "#list"
+				},
+				{
+					"include": "#symbol"
+				}
+			]
+		},
+		"line-comment": {
+			"match": "(;).*$",
+			"name": "comment.line.semicolon.extempore",
+			"captures": {
+				"1": {
+					"name": "punctuation.definition.comment.extempore"
+				}
+			}
+		},
+		"shebang": {
+			"match": "(#!).*$",
+			"name": "comment.line.shebang.extempore",
+			"captures": {
+				"1": {
+					"name": "punctuation.definition.comment.extempore"
+				}
+			}
+		},
+		"block-comment": {
+			"begin": "#\\|",
+			"end": "\\|#",
+			"name": "comment.block.extempore",
+			"beginCaptures": {
+				"0": {
+					"name": "punctuation.definition.comment.begin.extempore"
+				}
+			},
+			"endCaptures": {
+				"0": {
+					"name": "punctuation.definition.comment.end.extempore"
+				}
+			},
+			"patterns": [
+				{
+					"include": "#block-comment"
+				}
+			]
+		},
+		"datum-comment": {
+			"patterns": [
+				{
+					"begin": "#;\\s*['`,@]*#?\\(",
+					"end": "\\)",
+					"name": "comment.block.datum.extempore",
+					"patterns": [
+						{
+							"include": "#datum-comment-string"
+						},
+						{
+							"include": "#datum-comment-list"
+						}
+					]
+				},
+				{
+					"begin": "#;\\s*['`,@]*\\\"",
+					"end": "\\\"",
+					"name": "comment.block.datum.extempore",
+					"patterns": [
+						{
+							"match": "\\\\."
+						}
+					]
+				},
+				{
+					"match": "#;\\s*['`,@]*(?:#\\\\\\S[^\\s()\\\";]*|[^\\s()\\\";`',#][^\\s()\\\";`,]*)",
+					"name": "comment.block.datum.extempore"
+				}
+			]
+		},
+		"datum-comment-list": {
+			"begin": "\\(",
+			"end": "\\)",
+			"patterns": [
+				{
+					"include": "#datum-comment-string"
+				},
+				{
+					"include": "#datum-comment-list"
+				}
+			]
+		},
+		"datum-comment-string": {
+			"begin": "\\\"",
+			"end": "\\\"",
+			"patterns": [
+				{
 					"match": "\\\\."
 				}
 			]
 		},
-		"xtmsymbol": {
-			"patterns": [{
-				"name": "string.quoted.single.extempore",
-				"match": "'[^[:space:]()]*"
-			}]
+		"string": {
+			"begin": "\\\"",
+			"end": "\\\"",
+			"name": "string.quoted.double.extempore",
+			"beginCaptures": {
+				"0": {
+					"name": "punctuation.definition.string.begin.extempore"
+				}
+			},
+			"endCaptures": {
+				"0": {
+					"name": "punctuation.definition.string.end.extempore"
+				}
+			},
+			"patterns": [
+				{
+					"match": "\\\\[xX][0-9a-fA-F]+|\\\\\\r?\\n|\\\\.",
+					"name": "constant.character.escape.extempore"
+				}
+			]
+		},
+		"boolean": {
+			"match": "#[tTfF](?=[\\s()\\\";`,]|$)",
+			"name": "constant.language.boolean.extempore"
+		},
+		"character": {
+			"match": "#\\\\(?:space|newline|return|tab|x[0-9a-fA-F]+|\\S)",
+			"name": "constant.character.extempore"
+		},
+		"sharp-constant": {
+			"match": "#[^\\s()\\\";,`'#!|\\\\][^\\s()\\\";,`]*",
+			"name": "constant.language.extempore"
+		},
+		"number": {
+			"patterns": [
+				{
+					"match": "(#[xX][+-]?[0-9a-fA-F]+)(?=[\\s()\\\";`,]|$)",
+					"captures": {
+						"1": {
+							"name": "constant.numeric.hex.extempore"
+						}
+					}
+				},
+				{
+					"match": "(#[bB][+-]?[01]+)(?=[\\s()\\\";`,]|$)",
+					"captures": {
+						"1": {
+							"name": "constant.numeric.binary.extempore"
+						}
+					}
+				},
+				{
+					"match": "(#[oO][+-]?[0-7]+)(?=[\\s()\\\";`,]|$)",
+					"captures": {
+						"1": {
+							"name": "constant.numeric.octal.extempore"
+						}
+					}
+				},
+				{
+					"match": "(#[dD][+-]?\\d+)(?=[\\s()\\\";`,]|$)",
+					"captures": {
+						"1": {
+							"name": "constant.numeric.integer.extempore"
+						}
+					}
+				},
+				{
+					"match": "([+-]?\\d+/\\d+)(?=[\\s()\\\";`,]|$)",
+					"captures": {
+						"1": {
+							"name": "constant.numeric.rational.extempore"
+						}
+					}
+				},
+				{
+					"match": "([+-]?(?:\\d+\\.\\d*(?:[eE][+-]?\\d+)?|\\.\\d+(?:[eE][+-]?\\d+)?|\\d+[eE][+-]?\\d+))(?:(:[a-zA-Z][a-zA-Z0-9]*))?(?=[\\s()\\\";`,]|$)",
+					"captures": {
+						"1": {
+							"name": "constant.numeric.float.extempore"
+						},
+						"2": {
+							"name": "storage.type.extempore"
+						}
+					}
+				},
+				{
+					"match": "([+-]?\\d+)(?:(:[a-zA-Z][a-zA-Z0-9]*))?(?=[\\s()\\\";`,]|$)",
+					"captures": {
+						"1": {
+							"name": "constant.numeric.integer.extempore"
+						},
+						"2": {
+							"name": "storage.type.extempore"
+						}
+					}
+				}
+			]
+		},
+		"quote": {
+			"match": "'",
+			"name": "punctuation.definition.quote.extempore"
+		},
+		"quasiquote": {
+			"match": "`",
+			"name": "punctuation.definition.quote.extempore"
+		},
+		"unquote": {
+			"match": ",",
+			"name": "punctuation.definition.quote.extempore"
+		},
+		"unquote-splicing": {
+			"match": ",@",
+			"name": "punctuation.definition.quote.extempore"
+		},
+		"quoted-symbol": {
+			"match": "(')((?![+-]?\\.?[0-9])[^\\s()\\\";`',#][^\\s()\\\";`,]*)",
+			"captures": {
+				"1": {
+					"name": "punctuation.definition.quote.extempore"
+				},
+				"2": {
+					"name": "constant.other.symbol.extempore"
+				}
+			}
+		},
+		"quoted-list": {
+			"begin": "(')(\\()",
+			"name": "meta.quoted-list.extempore",
+			"beginCaptures": {
+				"1": {
+					"name": "punctuation.definition.quote.extempore"
+				},
+				"2": {
+					"name": "punctuation.section.parens.begin.extempore"
+				}
+			},
+			"end": "\\)",
+			"endCaptures": {
+				"0": {
+					"name": "punctuation.section.parens.end.extempore"
+				}
+			},
+			"patterns": [
+				{
+					"include": "#block-comment"
+				},
+				{
+					"include": "#datum-comment"
+				},
+				{
+					"include": "#line-comment"
+				},
+				{
+					"include": "#string"
+				},
+				{
+					"include": "#boolean"
+				},
+				{
+					"include": "#number"
+				},
+				{
+					"include": "#character"
+				},
+				{
+					"include": "#sharp-constant"
+				},
+				{
+					"include": "#vector"
+				},
+				{
+					"include": "#unquote-splicing"
+				},
+				{
+					"include": "#unquote"
+				},
+				{
+					"include": "#quasiquote"
+				},
+				{
+					"include": "#quoted-list"
+				},
+				{
+					"include": "#quoted-symbol"
+				},
+				{
+					"include": "#quote"
+				},
+				{
+					"include": "#bracket-type"
+				},
+				{
+					"include": "#dot"
+				},
+				{
+					"include": "#list"
+				},
+				{
+					"include": "#quoted-list-symbol"
+				}
+			]
+		},
+		"quoted-list-symbol": {
+			"match": "[^\\s()\\\";`',#][^\\s()\\\";`,]*(?=[\\s()\\\";`,]|$)",
+			"name": "constant.other.symbol.extempore"
+		},
+		"dot": {
+			"match": "(?<=[\\s()])\\.(?=[\\s)]|$)",
+			"name": "punctuation.separator.dot.extempore"
+		},
+		"type-body": {
+			"patterns": [
+				{
+					"match": "(?<![A-Za-z0-9_!])(?:u?i(?:16|1|8|32|64)|f32|f64|float|double|void|f|d)(?![A-Za-z0-9_])",
+					"name": "storage.type.primitive.extempore"
+				},
+				{
+					"match": "\\*+",
+					"name": "storage.modifier.pointer.extempore"
+				},
+				{
+					"match": "[0-9]+",
+					"name": "constant.numeric.integer.extempore"
+				},
+				{
+					"match": "[\\[\\]<>{}|/]",
+					"name": "punctuation.section.type.extempore"
+				},
+				{
+					"match": ",",
+					"name": "punctuation.separator.comma.extempore"
+				},
+				{
+					"match": "!?[A-Za-z_][A-Za-z0-9_]*",
+					"name": "entity.name.type.extempore"
+				}
+			]
+		},
+		"typed-symbol": {
+			"match": "([^\\s()\\\";`',#][^\\s()\\\";`,]*?)(:)((?:\\[[^\\s()\\\";]*\\]|<[^\\s()\\\";]*>|[|/][0-9][^\\s()\\\";]*[|/]|[A-Z][A-Za-z0-9_]*(?:\\{[^\\s()\\\";]*\\})?|(?:float|double|void|f32|f64|f|d|u?i(?:16|1|8|32|64)))\\**)(?=[\\s()\\\";`,]|$)",
+			"captures": {
+				"2": {
+					"name": "punctuation.separator.type.extempore"
+				},
+				"3": {
+					"name": "meta.type.extempore",
+					"patterns": [
+						{
+							"include": "#type-body"
+						}
+					]
+				}
+			}
+		},
+		"generic-type": {
+			"match": "([^\\s()\\\";`',#:{\\[<|/.+\\-0-9][^\\s()\\\";`',#:{]*\\{[^\\s()\\\";]+\\}\\**)(?=[\\s()\\\";`,]|$)",
+			"captures": {
+				"1": {
+					"name": "meta.type.extempore",
+					"patterns": [
+						{
+							"include": "#type-body"
+						}
+					]
+				}
+			}
+		},
+		"bracket-type": {
+			"patterns": [
+				{
+					"match": "(\\[(?=[^\\s()\\\";]*?[,\\[<])[^\\s()\\\";]*\\]\\**)(?=[\\s()\\\";`,]|$)",
+					"captures": {
+						"1": {
+							"name": "meta.type.extempore",
+							"patterns": [
+								{
+									"include": "#type-body"
+								}
+							]
+						}
+					}
+				},
+				{
+					"match": "(<(?=[^\\s()\\\";]*?[,\\[<])[^\\s()\\\";]*>\\**)(?=[\\s()\\\";`,]|$)",
+					"captures": {
+						"1": {
+							"name": "meta.type.extempore",
+							"patterns": [
+								{
+									"include": "#type-body"
+								}
+							]
+						}
+					}
+				},
+				{
+					"match": "([|/][0-9][^\\s()\\\";|/]*[|/]\\**)(?=[\\s()\\\";`,]|$)",
+					"captures": {
+						"1": {
+							"name": "meta.type.extempore",
+							"patterns": [
+								{
+									"include": "#type-body"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		"null": {
+			"match": "null(?=[\\s()\\\";`,]|$)",
+			"name": "constant.language.null.extempore"
+		},
+		"constant": {
+			"match": "[A-Z][A-Z0-9_]+(?=[\\s()\\\";`,]|$)",
+			"name": "constant.other.extempore"
+		},
+		"builtin-type": {
+			"match": "(?:double|float|ui16|ui32|ui64|void|f32|f64|i16|i32|i64|ui8|i1|i8)(?=[\\s()\\\";`,]|$)",
+			"name": "storage.type.primitive.extempore"
+		},
+		"symbol": {
+			"match": "[^\\s()\\\";`',#][^\\s()\\\";`,]*"
+		},
+		"list": {
+			"begin": "\\(",
+			"end": "\\)",
+			"name": "meta.list.extempore",
+			"beginCaptures": {
+				"0": {
+					"name": "punctuation.section.parens.begin.extempore"
+				}
+			},
+			"endCaptures": {
+				"0": {
+					"name": "punctuation.section.parens.end.extempore"
+				}
+			},
+			"patterns": [
+				{
+					"include": "#form"
+				},
+				{
+					"include": "#expression"
+				}
+			]
+		},
+		"vector": {
+			"begin": "#\\(",
+			"end": "\\)",
+			"name": "meta.vector.extempore",
+			"beginCaptures": {
+				"0": {
+					"name": "punctuation.section.parens.begin.extempore"
+				}
+			},
+			"endCaptures": {
+				"0": {
+					"name": "punctuation.section.parens.end.extempore"
+				}
+			},
+			"patterns": [
+				{
+					"include": "#expression"
+				}
+			]
+		},
+		"parameter": {
+			"match": "([^\\s()\\\";`',#][^\\s()\\\";`,]*?)(?:(:)((?:\\[[^\\s()\\\";]*\\]|<[^\\s()\\\";]*>|[|/][0-9][^\\s()\\\";]*[|/]|[A-Z][A-Za-z0-9_]*(?:\\{[^\\s()\\\";]*\\})?|(?:float|double|void|f32|f64|f|d|u?i(?:16|1|8|32|64)))\\**))?(?=[\\s()\\\";`,]|$)",
+			"captures": {
+				"1": {
+					"name": "variable.parameter.extempore"
+				},
+				"2": {
+					"name": "punctuation.separator.type.extempore"
+				},
+				"3": {
+					"name": "meta.type.extempore",
+					"patterns": [
+						{
+							"include": "#type-body"
+						}
+					]
+				}
+			}
+		},
+		"parameters": {
+			"patterns": [
+				{
+					"include": "#block-comment"
+				},
+				{
+					"include": "#line-comment"
+				},
+				{
+					"include": "#dot"
+				},
+				{
+					"include": "#parameter"
+				},
+				{
+					"include": "#list"
+				}
+			]
+		},
+		"bindings": {
+			"patterns": [
+				{
+					"include": "#block-comment"
+				},
+				{
+					"include": "#line-comment"
+				},
+				{
+					"include": "#binding"
+				}
+			]
+		},
+		"binding": {
+			"begin": "(\\()\\s*([^\\s()\\\";`',#][^\\s()\\\";`,]*?)(?:(:)((?:\\[[^\\s()\\\";]*\\]|<[^\\s()\\\";]*>|[|/][0-9][^\\s()\\\";]*[|/]|[A-Z][A-Za-z0-9_]*(?:\\{[^\\s()\\\";]*\\})?|(?:float|double|void|f32|f64|f|d|u?i(?:16|1|8|32|64)))\\**))?(?=[\\s()\\\";`,]|$)",
+			"name": "meta.binding.extempore",
+			"beginCaptures": {
+				"1": {
+					"name": "punctuation.section.parens.begin.extempore"
+				},
+				"2": {
+					"name": "variable.other.definition.extempore"
+				},
+				"3": {
+					"name": "punctuation.separator.type.extempore"
+				},
+				"4": {
+					"name": "meta.type.extempore",
+					"patterns": [
+						{
+							"include": "#type-body"
+						}
+					]
+				}
+			},
+			"end": "\\)",
+			"endCaptures": {
+				"0": {
+					"name": "punctuation.section.parens.end.extempore"
+				}
+			},
+			"patterns": [
+				{
+					"include": "#expression"
+				}
+			]
+		},
+		"form": {
+			"patterns": [
+				{
+					"begin": "(?<=[^\\\\]\\(|^\\()(\\s*)(define)(\\s+)(\\()(\\s*)([^\\s()\\\";`',#][^\\s()\\\";`,]*)",
+					"name": "meta.parameters.extempore",
+					"beginCaptures": {
+						"2": {
+							"name": "storage.type.extempore"
+						},
+						"4": {
+							"name": "punctuation.section.parens.begin.extempore"
+						},
+						"6": {
+							"name": "entity.name.function.extempore"
+						}
+					},
+					"end": "\\)",
+					"endCaptures": {
+						"0": {
+							"name": "punctuation.section.parens.end.extempore"
+						}
+					},
+					"patterns": [
+						{
+							"include": "#parameters"
+						}
+					]
+				},
+				{
+					"begin": "(?<=[^\\\\]\\(|^\\()(\\s*)(define-macro|macro)(\\s+)(\\()(\\s*)([^\\s()\\\";`',#][^\\s()\\\";`,]*)",
+					"name": "meta.parameters.extempore",
+					"beginCaptures": {
+						"2": {
+							"name": "storage.type.extempore"
+						},
+						"4": {
+							"name": "punctuation.section.parens.begin.extempore"
+						},
+						"6": {
+							"name": "entity.name.function.macro.extempore"
+						}
+					},
+					"end": "\\)",
+					"endCaptures": {
+						"0": {
+							"name": "punctuation.section.parens.end.extempore"
+						}
+					},
+					"patterns": [
+						{
+							"include": "#parameters"
+						}
+					]
+				},
+				{
+					"begin": "(?<=[^\\\\]\\(|^\\()(\\s*)(bind-macro)(?:(\\s+)(\\\"(?:[^\\\"\\\\]|\\\\.)*\\\"))?(\\s+)(\\()(\\s*)([^\\s()\\\";`',#][^\\s()\\\";`,]*)",
+					"name": "meta.parameters.extempore",
+					"beginCaptures": {
+						"2": {
+							"name": "storage.type.extempore"
+						},
+						"4": {
+							"name": "comment.block.documentation.extempore"
+						},
+						"6": {
+							"name": "punctuation.section.parens.begin.extempore"
+						},
+						"8": {
+							"name": "entity.name.function.macro.extempore"
+						}
+					},
+					"end": "\\)",
+					"endCaptures": {
+						"0": {
+							"name": "punctuation.section.parens.end.extempore"
+						}
+					},
+					"patterns": [
+						{
+							"include": "#parameters"
+						}
+					]
+				},
+				{
+					"begin": "(?<=[^\\\\]\\(|^\\()(\\s*)((?:lambdah|lambdas|lambdaz|lambda))(\\s*)(\\()",
+					"name": "meta.parameters.extempore",
+					"beginCaptures": {
+						"2": {
+							"name": "keyword.control.extempore"
+						},
+						"4": {
+							"name": "punctuation.section.parens.begin.extempore"
+						}
+					},
+					"end": "\\)",
+					"endCaptures": {
+						"0": {
+							"name": "punctuation.section.parens.end.extempore"
+						}
+					},
+					"patterns": [
+						{
+							"include": "#parameters"
+						}
+					]
+				},
+				{
+					"begin": "(?<=[^\\\\]\\(|^\\()(\\s*)((?:letrec|let\\*|letz|let))(?:(\\s+)([^\\s()\\\";`',#][^\\s()\\\";`,]*))?(\\s*)(\\()",
+					"name": "meta.bindings.extempore",
+					"beginCaptures": {
+						"2": {
+							"name": "keyword.control.extempore"
+						},
+						"4": {
+							"name": "entity.name.function.extempore"
+						},
+						"6": {
+							"name": "punctuation.section.parens.begin.extempore"
+						}
+					},
+					"end": "\\)",
+					"endCaptures": {
+						"0": {
+							"name": "punctuation.section.parens.end.extempore"
+						}
+					},
+					"patterns": [
+						{
+							"include": "#bindings"
+						}
+					]
+				},
+				{
+					"begin": "(?<=[^\\\\]\\(|^\\()(\\s*)(do)(\\s*)(\\()",
+					"name": "meta.bindings.extempore",
+					"beginCaptures": {
+						"2": {
+							"name": "keyword.control.repeat.extempore"
+						},
+						"4": {
+							"name": "punctuation.section.parens.begin.extempore"
+						}
+					},
+					"end": "\\)",
+					"endCaptures": {
+						"0": {
+							"name": "punctuation.section.parens.end.extempore"
+						}
+					},
+					"patterns": [
+						{
+							"include": "#bindings"
+						}
+					]
+				},
+				{
+					"begin": "(?<=[^\\\\]\\(|^\\()(\\s*)((?:dotimes|doloop))(\\s*)(\\()(\\s*)([^\\s()\\\";`',#][^\\s()\\\";`,]*?)(?:(:)((?:\\[[^\\s()\\\";]*\\]|<[^\\s()\\\";]*>|[|/][0-9][^\\s()\\\";]*[|/]|[A-Z][A-Za-z0-9_]*(?:\\{[^\\s()\\\";]*\\})?|(?:float|double|void|f32|f64|f|d|u?i(?:16|1|8|32|64)))\\**))?(?=[\\s()\\\";`,]|$)",
+					"name": "meta.binding.extempore",
+					"beginCaptures": {
+						"2": {
+							"name": "keyword.control.repeat.extempore"
+						},
+						"4": {
+							"name": "punctuation.section.parens.begin.extempore"
+						},
+						"6": {
+							"name": "variable.other.definition.extempore"
+						},
+						"7": {
+							"name": "punctuation.separator.type.extempore"
+						},
+						"8": {
+							"name": "meta.type.extempore",
+							"patterns": [
+								{
+									"include": "#type-body"
+								}
+							]
+						}
+					},
+					"end": "\\)",
+					"endCaptures": {
+						"0": {
+							"name": "punctuation.section.parens.end.extempore"
+						}
+					},
+					"patterns": [
+						{
+							"include": "#expression"
+						}
+					]
+				},
+				{
+					"match": "(?<=[^\\\\]\\(|^\\()(\\s*)((?:bind-instrument|bind-sampler|definec:dsp|bind-func|definec))(?:(\\s+)(static))?(\\s+)([^\\s()\\\";`',#][^\\s()\\\";`,]*?)(?:(:)((?:\\[[^\\s()\\\";]*\\]|<[^\\s()\\\";]*>|[|/][0-9][^\\s()\\\";]*[|/]|[A-Z][A-Za-z0-9_]*(?:\\{[^\\s()\\\";]*\\})?|(?:float|double|void|f32|f64|f|d|u?i(?:16|1|8|32|64)))\\**))?(?=[\\s()\\\";`,]|$)(?:(\\s+)(\\\"(?:[^\\\"\\\\]|\\\\.)*\\\"))?",
+					"captures": {
+						"2": {
+							"name": "storage.type.extempore"
+						},
+						"4": {
+							"name": "storage.modifier.extempore"
+						},
+						"6": {
+							"name": "entity.name.function.extempore"
+						},
+						"7": {
+							"name": "punctuation.separator.type.extempore"
+						},
+						"8": {
+							"name": "meta.type.extempore",
+							"patterns": [
+								{
+									"include": "#type-body"
+								}
+							]
+						},
+						"10": {
+							"name": "comment.block.documentation.extempore"
+						}
+					}
+				},
+				{
+					"match": "(?<=[^\\\\]\\(|^\\()(\\s*)((?:bind-alias|bind-data|bind-type))(\\s+)([^\\s()\\\";`',#][^\\s()\\\";`,]*)(?:(\\s+)([^\\s()\\\";`]+))?",
+					"captures": {
+						"2": {
+							"name": "storage.type.extempore"
+						},
+						"4": {
+							"name": "entity.name.type.extempore"
+						},
+						"6": {
+							"name": "meta.type.extempore",
+							"patterns": [
+								{
+									"include": "#type-body"
+								}
+							]
+						}
+					}
+				},
+				{
+					"match": "(?<=[^\\\\]\\(|^\\()(\\s*)((?:bind-ext-val|bind-lib-val|bind-val))(\\s+)([A-Z][A-Z0-9_]+(?=[\\s()\\\";`,]|$))(?:(\\s+)([^\\s()\\\";`]+))?",
+					"captures": {
+						"2": {
+							"name": "storage.type.extempore"
+						},
+						"4": {
+							"name": "constant.other.extempore"
+						},
+						"6": {
+							"name": "meta.type.extempore",
+							"patterns": [
+								{
+									"include": "#type-body"
+								}
+							]
+						}
+					}
+				},
+				{
+					"match": "(?<=[^\\\\]\\(|^\\()(\\s*)((?:bind-ext-val|bind-lib-val|bind-val))(\\s+)([^\\s()\\\";`',#][^\\s()\\\";`,]*)(?:(\\s+)([^\\s()\\\";`]+))?",
+					"captures": {
+						"2": {
+							"name": "storage.type.extempore"
+						},
+						"4": {
+							"name": "variable.other.definition.extempore"
+						},
+						"6": {
+							"name": "meta.type.extempore",
+							"patterns": [
+								{
+									"include": "#type-body"
+								}
+							]
+						}
+					}
+				},
+				{
+					"match": "(?<=[^\\\\]\\(|^\\()(\\s*)(bind-poly)(\\s+)([^\\s()\\\";`',#][^\\s()\\\";`,]*)(?:(\\s+)([^\\s()\\\";`',#][^\\s()\\\";`,]*))?",
+					"captures": {
+						"2": {
+							"name": "storage.type.extempore"
+						},
+						"4": {
+							"name": "entity.name.function.extempore"
+						},
+						"6": {
+							"name": "entity.name.function.extempore"
+						}
+					}
+				},
+				{
+					"match": "(?<=[^\\\\]\\(|^\\()(\\s*)((?:bind-dylib|bind-lib))(\\s+)([^\\s()\\\";`',#][^\\s()\\\";`,]*)(?:(\\s+)([^\\s()\\\";`',#][^\\s()\\\";`,]*))?",
+					"captures": {
+						"2": {
+							"name": "storage.type.extempore"
+						},
+						"4": {
+							"name": "entity.name.namespace.extempore"
+						},
+						"6": {
+							"name": "entity.name.function.extempore"
+						}
+					}
+				},
+				{
+					"match": "(?<=[^\\\\]\\(|^\\()(\\s*)(define)(\\s+)([^\\s()\\\";`',#][^\\s()\\\";`,]*?)(?:(:)((?:\\[[^\\s()\\\";]*\\]|<[^\\s()\\\";]*>|[|/][0-9][^\\s()\\\";]*[|/]|[A-Z][A-Za-z0-9_]*(?:\\{[^\\s()\\\";]*\\})?|(?:float|double|void|f32|f64|f|d|u?i(?:16|1|8|32|64)))\\**))?(?=[\\s()\\\";`,]|$)",
+					"captures": {
+						"2": {
+							"name": "storage.type.extempore"
+						},
+						"4": {
+							"name": "variable.other.definition.extempore"
+						},
+						"5": {
+							"name": "punctuation.separator.type.extempore"
+						},
+						"6": {
+							"name": "meta.type.extempore",
+							"patterns": [
+								{
+									"include": "#type-body"
+								}
+							]
+						}
+					}
+				},
+				{
+					"match": "(?<=[^\\\\]\\(|^\\()(\\s*)((?:bitcast|convert|cast))(\\s+)([^\\s()\\\";]+)(\\s+)([^\\s()\\\";`]+)",
+					"captures": {
+						"2": {
+							"name": "keyword.control.extempore"
+						},
+						"6": {
+							"name": "meta.type.extempore",
+							"patterns": [
+								{
+									"include": "#type-body"
+								}
+							]
+						}
+					}
+				},
+				{
+					"match": "(?<=[^\\\\]\\(|^\\()(\\s*)((?:bind-instrument|define-syntax|bind-ext-val|bind-lib-val|bind-sampler|define-macro|definec:dsp|bind-alias|bind-dylib|bind-macro|bind-data|bind-func|bind-poly|bind-type|bind-lib|bind-val|definec|define|macro))(?=[\\s()\\\";`,]|$)",
+					"captures": {
+						"2": {
+							"name": "storage.type.extempore"
+						}
+					}
+				},
+				{
+					"match": "(?<=[^\\\\]\\(|^\\()(\\s*)((?:unless|case|cond|else|when|if))(?=[\\s()\\\";`,]|$)",
+					"captures": {
+						"2": {
+							"name": "keyword.control.conditional.extempore"
+						}
+					}
+				},
+				{
+					"match": "(?<=[^\\\\]\\(|^\\()(\\s*)((?:dotimes|doloop|dolet|while|do))(?=[\\s()\\\";`,]|$)",
+					"captures": {
+						"2": {
+							"name": "keyword.control.repeat.extempore"
+						}
+					}
+				},
+				{
+					"match": "(?<=[^\\\\]\\(|^\\()(\\s*)((?:sys:load-preload-check|sys:load|load))(?=[\\s()\\\";`,]|$)",
+					"captures": {
+						"2": {
+							"name": "keyword.control.import.extempore"
+						}
+					}
+				},
+				{
+					"match": "(?<=[^\\\\]\\(|^\\()(\\s*)((?:call-with-current-continuation|unquote-splicing|call-as-xtlang|zone_cleanup|quasiquote|callback|schedule|bitcast|call/cc|convert|lambdah|lambdas|lambdaz|memzone|receive|unquote|beginz|lambda|letrec|async|begin|catch|delay|quote|spawn|cast|let\\*|letz|set!|sync|let))(?=[\\s()\\\";`,]|$)",
+					"captures": {
+						"2": {
+							"name": "keyword.control.extempore"
+						}
+					}
+				},
+				{
+					"match": "(?<=[^\\\\]\\(|^\\()(\\s*)((?:bitwise-shift-right|bitwise-shift-left|bitwise-and|bitwise-eor|bitwise-not|bitwise-xor|bitwise-or|bor|!=|<<|<=|<>|>=|>>|%|&|\\*|\\+|-|/|<|=|>|\\^|~))(?=[\\s()\\\";`,]|$)",
+					"captures": {
+						"2": {
+							"name": "keyword.operator.extempore"
+						}
+					}
+				},
+				{
+					"match": "(?<=[^\\\\]\\(|^\\()(\\s*)((?:and|not|\\$\\$|or|\\$))(?=[\\s()\\\";`,]|$)",
+					"captures": {
+						"2": {
+							"name": "keyword.operator.logical.extempore"
+						}
+					}
+				},
+				{
+					"match": "(?<=[^\\\\]\\(|^\\()(\\s*)((?:close-output-port|call-with-values|close-input-port|open-output-file|hash-table-set!|make-hash-table|open-input-file|string-downcase|exact->inexact|hash-table-ref|inexact->exact|number->string|string->number|string->symbol|symbol->string|char->integer|integer->char|real->integer|string-append|string-length|string-upcase|vector-length|dynamic-wind|list->string|list->vector|pointer-set!|string->list|vector->list|vector-fill!|char-ready\\?|hash-table\\?|make-string|make-vector|pointer-ref|stack-alloc|string-copy|string-set!|vector-set!|array-set!|heap-alloc|make-array|procedure\\?|string-ref|tuple-set!|vector-ref|write-char|zone-alloc|array-ref|last-pair|list-tail|negative\\?|peek-char|positive\\?|rational\\?|read-char|remainder|sprintout|substring|tuple-ref|aref-ptr|boolean\\?|copysign|defined\\?|for-each|imp_rand|inexact\\?|integer\\?|list-ref|pref-ptr|printout|quotient|refcheck|set-car!|set-cdr!|sprintln|string<\\?|string=\\?|string>\\?|tref-ptr|truncate|vref-ptr|vshuffle|ceiling|display|fprintf|newline|number\\?|println|randomf|reverse|size-of|sprintf|string\\?|symbol\\?|type-of|vector\\?|afill!|append|cadddr|cddddr|char<\\?|char=\\?|char>\\?|equal\\?|exact\\?|filter|format|fscanf|halloc|length|member|modulo|pfill!|printf|random|reduce|salloc|sscanf|tfill!|values|vector|vfill!|zalloc|alloc|apply|array|aset!|assoc|atan2|caaar|caadr|cadar|caddr|cdaar|cdadr|cddar|cdddr|char\\?|cset!|error|even\\?|floor|foldl|foldr|list\\?|log10|null\\?|pair\\?|port\\?|print|pset!|real\\?|round|sort!|strln|trunc|tset!|tuple|vset!|write|zero\\?|acos|aref|asin|assq|assv|atan|caar|cadr|cbrt|cdar|cddr|ceil|cons|cosh|cref|eqv\\?|eval|exit|exp2|expt|fabs|fmax|fmin|fmod|fold|free|list|log2|memq|memv|odd\\?|pref|quit|read|sinh|sort|sqrt|strj|tanh|tref|vref|abs|car|cat|cdr|cos|eq\\?|exp|fma|gcd|lcm|log|map|max|min|now|pow|sin|tan))(?=[\\s()\\\";`,]|$)",
+					"captures": {
+						"2": {
+							"name": "support.function.extempore"
+						}
+					}
+				},
+				{
+					"match": "(?<=[^\\\\]\\(|^\\()(\\s*)((?:(?:i1|i8|i16|i32|i64|ui8|ui16|ui32|ui64|f|d))to(?:i1|i8|i16|i32|i64|ui8|ui16|ui32|ui64|f|d))(?=[\\s()\\\";`,]|$)",
+					"captures": {
+						"2": {
+							"name": "support.function.extempore"
+						}
+					}
+				},
+				{
+					"match": "(?<=[^\\\\]\\(|^\\()(\\s*)(xtmtest-[^\\s()\\\";`,]*)(?=[\\s()\\\";`,]|$)",
+					"captures": {
+						"2": {
+							"name": "support.function.macro.extempore"
+						}
+					}
+				},
+				{
+					"match": "(?<=[^\\\\]\\(|^\\()(\\s*)([A-Z][A-Za-z0-9]*)(?=[\\s()\\\";`,]|$)",
+					"captures": {
+						"2": {
+							"name": "entity.name.function.constructor.extempore"
+						}
+					}
+				},
+				{
+					"match": "(?<=[^\\\\]\\(|^\\()(\\s*)((?![+-]?\\.?[0-9])(?!\\.(?=[\\s()\\\";`,]|$))[^\\s()\\\";`',#][^\\s()\\\";`,]*)",
+					"captures": {
+						"2": {
+							"name": "entity.name.function.call.extempore"
+						}
+					}
+				}
+			]
 		}
-	},
-	"scopeName": "source.extempore"
+	}
 }

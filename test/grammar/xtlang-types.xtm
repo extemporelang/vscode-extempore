@@ -1,0 +1,28 @@
+; SYNTAX TEST "source.extempore" "xtlang types"
+ (f x:i64 y:double* p:[i64,i64]* q:<double,double>* v:|4,float| s:Pair{!a,!b}* n:Point)
+;    ^ punctuation.separator.type.extempore
+;     ^^^ meta.type.extempore storage.type.primitive.extempore
+;           ^^^^^^ storage.type.primitive.extempore
+;                 ^ storage.modifier.pointer.extempore
+;                     ^^^^^^^^^^ meta.type.extempore
+;                                  ^^^^^^^^^^^^^^^^ meta.type.extempore
+;                                                     ^^^^^^^^^ meta.type.extempore
+;                                                      ^ constant.numeric.integer.extempore
+;                                                                 ^^^^^^^^^^^^ meta.type.extempore
+;                                                                 ^^^^ entity.name.type.extempore
+;                                                                      ^^ entity.name.type.extempore
+;                                                                                ^^^^^ meta.type.extempore entity.name.type.extempore
+ [i64,i64]* <double,float> |4,i8| Pair{!a,!b} List{!a}*
+;^^^^^^^^^^ meta.type.extempore
+;           ^^^^^^^^^^^^^^ meta.type.extempore
+;                          ^^^^^^ meta.type.extempore
+;                                 ^^^^^^^^^^^ meta.type.extempore
+;                                             ^^^^^^^^^ meta.type.extempore
+ (< a b) (<= a b) (<< a 2) (> a b)
+; ^ keyword.operator.extempore
+;         ^^ keyword.operator.extempore
+;                  ^^ keyword.operator.extempore
+;                           ^^^ - meta.type.extempore
+ sys:load sys:platform x:y
+;         ^^^^^^^^^^^^ - meta.type.extempore
+;                      ^^^ - meta.type.extempore

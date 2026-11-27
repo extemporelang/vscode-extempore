@@ -1,0 +1,39 @@
+; SYNTAX TEST "source.extempore" "comments"
+ ; line comment
+;^^^^^^ comment.line.semicolon.extempore
+;  ^^^^ comment.line.semicolon.extempore
+ (foo) ; (define x 1)
+;      ^^^^^^^^^ comment.line.semicolon.extempore
+;         ^^^^^^ - storage.type.extempore
+ #! shebang
+;^^ comment.line.shebang.extempore
+ #| one |# (foo)
+;^^ comment.block.extempore
+;  ^^^^^ comment.block.extempore
+;       ^^ comment.block.extempore
+;           ^^^ entity.name.function.call.extempore
+ #| spans (define x 1)
+;^^ comment.block.extempore
+;          ^^^^^^ comment.block.extempore - storage.type.extempore
+ lines "unterminated
+;^^^^^ comment.block.extempore
+ |# (define y 2)
+;^^ comment.block.extempore
+;    ^^^^^^ storage.type.extempore
+ #| a #| nested |# still |# (foo)
+;        ^^^^^^ comment.block.extempore
+;                  ^^^^^ comment.block.extempore
+;                            ^^^ entity.name.function.call.extempore
+ #;(define x 1) (define y 2)
+;^^^^^^^^^^^^^^ comment.block.datum.extempore
+;   ^^^^^^ - storage.type.extempore
+;                ^^^^^^ storage.type.extempore
+ #;foo (bar)
+;^^^^^ comment.block.datum.extempore
+;       ^^^ entity.name.function.call.extempore
+ #;'(a (b ")") c) (d)
+;^^^^^^^^^^^^^^^^ comment.block.datum.extempore
+;                  ^ entity.name.function.call.extempore
+ #;"a ) b" (d)
+;  ^^^^^^^ comment.block.datum.extempore
+;           ^ entity.name.function.call.extempore

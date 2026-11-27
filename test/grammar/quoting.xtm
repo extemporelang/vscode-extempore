@@ -1,0 +1,26 @@
+; SYNTAX TEST "source.extempore" "quoting"
+ 'foo `bar ,baz ,@qux
+;^ punctuation.definition.quote.extempore
+; ^^^ constant.other.symbol.extempore
+;     ^ punctuation.definition.quote.extempore
+;          ^ punctuation.definition.quote.extempore
+;               ^^ punctuation.definition.quote.extempore
+ '(a b (define c)) (define d 1)
+;  ^ constant.other.symbol.extempore
+;    ^ constant.other.symbol.extempore
+;       ^^^^^^ - constant.other.symbol.extempore
+;                   ^^^^^^ storage.type.extempore
+ '(define x) '()
+;  ^^^^^^ constant.other.symbol.extempore - storage.type.extempore
+ `(a ,(foo b))
+;      ^^^ entity.name.function.call.extempore
+ '(1 "s" #t)
+;  ^ constant.numeric.integer.extempore
+;    ^^^ string.quoted.double.extempore
+;        ^^ constant.language.boolean.extempore
+ #(1 2 foo) (a . b)
+;^^ meta.vector.extempore punctuation.section.parens.begin.extempore
+;  ^ constant.numeric.integer.extempore
+;              ^ punctuation.separator.dot.extempore
+ (a . b)
+;   ^ punctuation.separator.dot.extempore

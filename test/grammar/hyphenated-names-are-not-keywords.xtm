@@ -1,0 +1,15 @@
+; SYNTAX TEST "source.extempore" "hyphenated names are not keywords"
+ (my-define-thing 1) (define-thing 2) (let-values 3) (if-not 4)
+; ^^^^^^^^^^^^^^^ entity.name.function.call.extempore - storage.type.extempore
+;    ^^^^^^^^^^^^ entity.name.function.call.extempore - storage.type.extempore
+;                                      ^^^^^^^^^^ entity.name.function.call.extempore - keyword.control.extempore
+;                                                     ^^^^^^ entity.name.function.call.extempore - keyword.control.conditional.extempore
+ (foo define if lambda +)
+;     ^^^^^^ - storage.type.extempore
+;            ^^ - keyword.control.conditional.extempore
+;               ^^^^^^ - keyword.control.extempore
+;                      ^ - keyword.operator.extempore
+ (a-if b) (bind-func-x y) (set-car!x z)
+; ^^^^ - keyword.control.conditional.extempore
+;          ^^^^^^^^^^^ - storage.type.extempore
+;                          ^^^^^^^^^ - support.function.extempore

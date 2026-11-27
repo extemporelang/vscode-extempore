@@ -1,0 +1,54 @@
+; SYNTAX TEST "source.extempore" "operators and builtins"
+ (+ 1 2) (* a b) (/ a b) (% a b) (= a b) (>= a b) (<> a b) (!= a b) (>> a 1) (& a b) (bor a b) (bitwise-and a b)
+; ^ keyword.operator.extempore
+;         ^ keyword.operator.extempore
+;                 ^ keyword.operator.extempore
+;                         ^ keyword.operator.extempore
+;                                 ^ keyword.operator.extempore
+;                                         ^^ keyword.operator.extempore
+;                                                  ^^ keyword.operator.extempore
+;                                                           ^^ keyword.operator.extempore
+;                                                                    ^^ keyword.operator.extempore
+;                                                                             ^ keyword.operator.extempore
+;                                                                                     ^^^ keyword.operator.extempore
+;                                                                                               ^^^^^^^^^^^ keyword.operator.extempore
+ (and a b) (or a b) (not a) ($ a) ($$ a)
+; ^^^ keyword.operator.logical.extempore
+;           ^^ keyword.operator.logical.extempore
+;                    ^^^ keyword.operator.logical.extempore
+;                            ^ keyword.operator.logical.extempore
+;                                  ^^ keyword.operator.logical.extempore
+ (car x) (null? x) (set-car! x 1) (string->number s) (list->vector l) (exact->inexact n) (call-with-values a b)
+; ^^^ support.function.extempore
+;         ^^^^^ support.function.extempore
+;                   ^^^^^^^^ support.function.extempore
+;                                  ^^^^^^^^^^^^^^ support.function.extempore
+;                                                     ^^^^^^^^^^^^ support.function.extempore
+;                                                                      ^^^^^^^^^^^^^^ support.function.extempore
+;                                                                                         ^^^^^^^^^^^^^^^^ support.function.extempore
+ (alloc 4) (tset! t 0 1) (pref p 0) (printf "x") (println 1) (now) (random)
+; ^^^^^ support.function.extempore
+;           ^^^^^ support.function.extempore
+;                         ^^^^ support.function.extempore
+;                                    ^^^^^^ support.function.extempore
+;                                                 ^^^^^^^ support.function.extempore
+;                                                             ^^^ support.function.extempore
+;                                                                   ^^^^^^ support.function.extempore
+ (sin x) (sqrt x) (pow a b) (i64tof x) (dtoi64 x) (ftod x) (ui8toi32 x)
+; ^^^ support.function.extempore
+;         ^^^^ support.function.extempore
+;                  ^^^ support.function.extempore
+;                            ^^^^^^ support.function.extempore
+;                                       ^^^^^^ support.function.extempore
+;                                                  ^^^^ support.function.extempore
+;                                                           ^^^^^^^^ support.function.extempore
+ (xtmtest-result a b) (Rat 1 2) (Point 0.0 1.0) (my-func 1)
+; ^^^^^^^^^^^^^^ support.function.macro.extempore
+;                      ^^^ entity.name.function.constructor.extempore
+;                                ^^^^^ entity.name.function.constructor.extempore
+;                                                ^^^^^^^ entity.name.function.call.extempore
+ (map car x) (foo car) (foo i64toi64)
+;                 ^^^ - support.function.extempore
+;                           ^^^^^^^^ - support.function.extempore
+ (a   ; c
+; ^ entity.name.function.call.extempore

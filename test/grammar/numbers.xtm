@@ -1,0 +1,34 @@
+; SYNTAX TEST "source.extempore" "numbers"
+ 42 -7 +3
+;^^ constant.numeric.integer.extempore
+;   ^^ constant.numeric.integer.extempore
+;      ^^ constant.numeric.integer.extempore
+ 3.14 -.5 1e10 2.5e-3 7.
+;^^^^ constant.numeric.float.extempore
+;     ^^^ constant.numeric.float.extempore
+;         ^^^^ constant.numeric.float.extempore
+;              ^^^^^^ constant.numeric.float.extempore
+;                     ^^ constant.numeric.float.extempore
+ #x1F #b101 #o17 #d99 #x-ff
+;^^^^ constant.numeric.hex.extempore
+;     ^^^^^ constant.numeric.binary.extempore
+;           ^^^^ constant.numeric.octal.extempore
+;                ^^^^ constant.numeric.integer.extempore
+;                     ^^^^^ constant.numeric.hex.extempore
+ 1/2 -3/4
+;^^^ constant.numeric.rational.extempore
+;    ^^^^ constant.numeric.rational.extempore
+ 5:i64 3.0:f 0.5:double
+;^ constant.numeric.integer.extempore
+; ^^^^ storage.type.extempore
+;      ^^^ constant.numeric.float.extempore
+;         ^^ storage.type.extempore
+;               ^^^^^^^ storage.type.extempore
+ 1+ foo-1 a1 1abc
+;^^ - constant.numeric.integer.extempore
+;   ^^^^^ - constant.numeric.integer.extempore
+;         ^^ - constant.numeric.integer.extempore
+;            ^^^^ - constant.numeric.integer.extempore
+ (- 1) (+ a b)
+; ^ keyword.operator.extempore
+;   ^ constant.numeric.integer.extempore

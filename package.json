@@ -234,7 +234,8 @@
 		"build": "node esbuild.mjs",
 		"watch": "node esbuild.mjs --watch",
 		"check": "tsc --noEmit",
-		"test": "pnpm build && tsc -p test && vscode-test",
+		"test:grammar": "vscode-tmgrammar-test -g syntaxes/extempore.tmLanguage.json \"test/grammar/*.xtm\"",
+		"test": "pnpm test:grammar && pnpm build && tsc -p test && vscode-test",
 		"package": "vsce package --no-dependencies",
 		"vscode:prepublish": "node esbuild.mjs --production"
 	},
@@ -251,6 +252,7 @@
 		"@vscode/test-electron": "^3.1.0",
 		"@vscode/vsce": "^4.1.1",
 		"esbuild": "^0.28.0",
-		"typescript": "^7.0.2"
+		"typescript": "^7.0.2",
+		"vscode-tmgrammar-test": "^0.1.3"
 	}
 }

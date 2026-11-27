@@ -1,0 +1,73 @@
+; SYNTAX TEST "source.extempore" "definition forms"
+ (define x 1) (define y:i64 2)
+; ^^^^^^ storage.type.extempore
+;        ^ variable.other.definition.extempore
+;                     ^ variable.other.definition.extempore
+ (define (add a b) (+ a b))
+; ^^^^^^ storage.type.extempore
+;         ^^^ entity.name.function.extempore
+;             ^ variable.parameter.extempore
+;               ^ variable.parameter.extempore
+;                   ^ keyword.operator.extempore
+ (define (f . rest) rest)
+;         ^ entity.name.function.extempore
+;           ^ punctuation.separator.dot.extempore
+;             ^^^^ variable.parameter.extempore
+ (define-macro (my-mac a b) a) (macro (m x) x)
+; ^^^^^^^^^^^^ storage.type.extempore
+;               ^^^^^^ entity.name.function.macro.extempore
+;                      ^ variable.parameter.extempore
+;                               ^^^^^ storage.type.extempore
+;                                      ^ entity.name.function.macro.extempore
+;                                        ^ variable.parameter.extempore
+ (bind-func add:[i64,i64,i64]* (lambda (a:i64 b:i64) (+ a b)))
+; ^^^^^^^^^ storage.type.extempore
+;           ^^^ entity.name.function.extempore
+;               ^^^^^^^^^^^^^^ meta.type.extempore
+;                               ^^^^^^ keyword.control.extempore
+;                                       ^ variable.parameter.extempore
+;                                             ^ variable.parameter.extempore
+;                                                     ^ keyword.operator.extempore
+ (bind-func static helper "does a thing" (lambda () 1))
+;           ^^^^^^ storage.modifier.extempore
+;                  ^^^^^^ entity.name.function.extempore
+;                         ^^^^^^^^^^^^^^ comment.block.documentation.extempore
+ (bind-func plain (lambda () 1)) (definec foo (lambda () 1))
+;           ^^^^^ entity.name.function.extempore
+;                                 ^^^^^^^ storage.type.extempore
+;                                         ^^^ entity.name.function.extempore
+ (bind-type Point <double,double> "doc") (bind-alias Str i8*) (bind-data Box{!a} <!a>)
+; ^^^^^^^^^ storage.type.extempore
+;           ^^^^^ entity.name.type.extempore
+;                 ^^^^^^^^^^^^^^^ meta.type.extempore
+;                                         ^^^^^^^^^^ storage.type.extempore
+;                                                    ^^^ entity.name.type.extempore
+;                                                        ^^ storage.type.primitive.extempore
+;                                                          ^ storage.modifier.pointer.extempore
+;                                                                        ^^^^^^^ entity.name.type.extempore
+ (bind-val counter i64 0) (bind-val LIMIT i64 10) (bind-ext-val ext double)
+; ^^^^^^^^ storage.type.extempore
+;          ^^^^^^^ variable.other.definition.extempore
+;                  ^^^ meta.type.extempore storage.type.primitive.extempore
+;                                   ^^^^^ constant.other.extempore
+;                                                               ^^^ variable.other.definition.extempore
+ (bind-poly add add_i64) (bind-lib libc puts [i32,i8*]*) (bind-dylib lib "x.so")
+; ^^^^^^^^^ storage.type.extempore
+;           ^^^ entity.name.function.extempore
+;               ^^^^^^^ entity.name.function.extempore
+;                                  ^^^^ entity.name.namespace.extempore
+;                                       ^^^^ entity.name.function.extempore
+;                                                                    ^^^ entity.name.namespace.extempore
+ (bind-macro "doc" (my-m a b) a) (bind-macro (n x) x)
+; ^^^^^^^^^^ storage.type.extempore
+;            ^^^^^ comment.block.documentation.extempore
+;                   ^^^^ entity.name.function.macro.extempore
+;                        ^ variable.parameter.extempore
+;                                             ^ entity.name.function.macro.extempore
+ (cast p Point*) (convert x i64)
+; ^^^^ keyword.control.extempore
+;        ^^^^^^ meta.type.extempore
+;        ^^^^^ entity.name.type.extempore
+;             ^ storage.modifier.pointer.extempore
+;                 ^^^^^^^ keyword.control.extempore
+;                           ^^^ meta.type.extempore storage.type.primitive.extempore

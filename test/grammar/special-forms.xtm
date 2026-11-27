@@ -1,0 +1,49 @@
+; SYNTAX TEST "source.extempore" "special forms"
+ (if a b c) (cond (else 1)) (when a b) (unless a b) (case x ((1) 2))
+; ^^ keyword.control.conditional.extempore
+;            ^^^^ keyword.control.conditional.extempore
+;                  ^^^^ keyword.control.conditional.extempore
+;                            ^^^^ keyword.control.conditional.extempore
+;                                       ^^^^^^ keyword.control.conditional.extempore
+;                                                    ^^^^ keyword.control.conditional.extempore
+ (while a b) (dotimes (i 4) i) (doloop (j 4) j) (do ((k 0 (+ k 1))) ((= k 3)))
+; ^^^^^ keyword.control.repeat.extempore
+;             ^^^^^^^ keyword.control.repeat.extempore
+;                               ^^^^^^ keyword.control.repeat.extempore
+;                                                ^^ keyword.control.repeat.extempore
+;                      ^ variable.other.definition.extempore
+;                                       ^ variable.other.definition.extempore
+;                                                     ^ variable.other.definition.extempore
+ (begin 1) (set! x 1) (memzone 1) (callback 1) (schedule 1) (call/cc f) (quote x)
+; ^^^^^ keyword.control.extempore
+;           ^^^^ keyword.control.extempore
+;                      ^^^^^^^ keyword.control.extempore
+;                                  ^^^^^^^^ keyword.control.extempore
+;                                               ^^^^^^^^ keyword.control.extempore
+;                                                            ^^^^^^^ keyword.control.extempore
+;                                                                        ^^^^^ keyword.control.extempore
+ (sys:load "libs/core/std.xtm") (load "x")
+; ^^^^^^^^ keyword.control.import.extempore
+;                                ^^^^ keyword.control.import.extempore
+ (lambda (x:i64 y) x) (lambdaz (a) a)
+; ^^^^^^ keyword.control.extempore
+;         ^ variable.parameter.extempore
+;               ^ variable.parameter.extempore
+;                      ^^^^^^^ keyword.control.extempore
+;                               ^ variable.parameter.extempore
+;                  ^ - variable.parameter.extempore
+ (let ((a 1) (b:i64 2)) a) (let loop ((i 0)) i) (letz ((c 1)) c)
+; ^^^ keyword.control.extempore
+;       ^ variable.other.definition.extempore
+;             ^ variable.other.definition.extempore
+;               ^^^ storage.type.primitive.extempore
+;                               ^^^^ entity.name.function.extempore
+;                                      ^ variable.other.definition.extempore
+;                                                ^^^^ keyword.control.extempore
+;                                                       ^ variable.other.definition.extempore
+ (let ((a 1)
+;       ^ variable.other.definition.extempore
+      (b 2))
+;      ^ variable.other.definition.extempore
+   (foo a b))
+;   ^^^ entity.name.function.call.extempore
