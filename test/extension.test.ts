@@ -130,6 +130,24 @@ suite("evaluation", function () {
     assert.match(result.error?.message ?? "", /car argument, 5, is an integer/);
   });
 
+  test("interrupting a runaway loop", async () => {
+    await evalAt(0, 3); // the language server is up
+    await open("loop.xtm");
+    vscode.window.activeTextEditor!.selection = new vscode.Selection(0, 1, 0, 1);
+    const evaluated = new Promise<EvalResult>((resolve) => {
+      const listening = api.onDidEvaluate((result) => {
+        listening.dispose();
+        resolve(result);
+      });
+    });
+    // neither command finishes before the loop stops, so neither is awaited
+    void vscode.commands.executeCommand("extempore.evaluate");
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    void vscode.commands.executeCommand("extempore.interruptEvaluation");
+    assert.equal((await evaluated).interrupted, true);
+    assert.deepEqual((await evalAt(0, 3)).values, ["40"]);
+  });
+
   test("an error's diagnostic stays until its form is edited", async () => {
     await evalAt(5, 1);
     const document = vscode.window.activeTextEditor!.document;
