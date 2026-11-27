@@ -14,3 +14,7 @@
 - `Extempore: Download binary` finds the archives current releases publish, and
   sets `extempore.executable` as well as `extempore.sharedir`
 - needs VS Code 1.100 or later
+- with the legacy transport, each reply also goes to the Extempore output panel,
+  and replies no longer run together
+- in an untrusted workspace, `extempore.executable` and `extempore.sharedir` come
+  from user settings only

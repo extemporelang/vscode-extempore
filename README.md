@@ -6,8 +6,9 @@ and an outline through extempore's language server.
 
 ## Setup
 
-1. install [Extempore](https://extemporelang.github.io/overview/quickstart/), or
-   run `Extempore: Download binary` from the Command Palette
+1. install [Extempore](https://extemporelang.github.io/overview/quickstart/)
+   v0.12.0 or later, or run `Extempore: Download binary` from the Command
+   Palette
 2. make sure VS Code can find the `extempore` binary: either it's on your
    `PATH`, or `extempore.executable` is set to its path (the download command
    sets this for you)
@@ -32,7 +33,8 @@ server the same way `extempore send` does: `$EXTEMPORE_NREPL_PORT`, then a
 | `Extempore: Download binary`                      |                                                                  |
 
 Each result shows at the end of its form until you next edit the file. Errors
-are also marked on their form, and everything the code prints goes to the
+are also marked on their form until you edit that form or it evaluates cleanly,
+and everything the code prints goes to the
 "Extempore" output panel. Formatting (`Format Document`, or
 `editor.formatOnSave`) uses `extempore fmt`'s rules.
 
@@ -47,12 +49,17 @@ are also marked on their form, and everything the code prints goes to the
 | `extempore.nrepl.process` |             | the Scheme process to evaluate in, e.g. `utility`                                           |
 | `extempore.transport`     | `nrepl`     | `legacy` for an Extempore older than the nREPL server                                       |
 
+In an untrusted workspace, `extempore.executable` and `extempore.sharedir` come
+from your user settings only, so a folder you open can't choose which program
+runs.
+
 ## The legacy transport
 
 Extempore releases before the nREPL server only accept code over a raw socket on
 port 7099. Set `extempore.transport` to `legacy`, start Extempore, then run
 `Extempore: Connect (legacy)` (or `Connect to host:port (legacy)`). Each
-evaluated form's value shows in the status bar. `extempore.hostname` and
+evaluated form's value shows in the status bar and the "Extempore" output
+panel. `extempore.hostname` and
 `extempore.port` set where it connects. Formatting and the outline still work if
 your `extempore` binary has `extempore lsp`.
 

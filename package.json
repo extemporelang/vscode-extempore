@@ -5,6 +5,10 @@
 	"version": "0.3.0",
 	"publisher": "extemporelang",
 	"license": "MIT",
+	"homepage": "https://extemporelang.github.io/guides/editor-support/",
+	"bugs": {
+		"url": "https://github.com/extemporelang/vscode-extempore/issues"
+	},
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/extemporelang/vscode-extempore"
@@ -15,6 +19,31 @@
 	"categories": [
 		"Programming Languages"
 	],
+	"keywords": [
+		"extempore",
+		"xtlang",
+		"live coding",
+		"livecoding",
+		"music",
+		"audio",
+		"scheme",
+		"lisp",
+		"nrepl"
+	],
+	"capabilities": {
+		"untrustedWorkspaces": {
+			"supported": "limited",
+			"description": "In an untrusted workspace the extension runs only the extempore named in your user settings.",
+			"restrictedConfigurations": [
+				"extempore.executable",
+				"extempore.sharedir"
+			]
+		},
+		"virtualWorkspaces": {
+			"supported": false,
+			"description": "The language server and extempore need the files on disk."
+		}
+	},
 	"main": "./dist/extension.js",
 	"contributes": {
 		"languages": [
@@ -90,14 +119,12 @@
 				"extempore.hostname": {
 					"type": "string",
 					"default": "localhost",
-					"markdownDeprecationMessage": "Used only by the legacy transport.",
-					"description": "Host of the legacy eval server."
+					"markdownDescription": "Host of the legacy eval server (`extempore.transport`: `legacy`)."
 				},
 				"extempore.port": {
 					"type": "integer",
 					"default": 7099,
-					"markdownDeprecationMessage": "Used only by the legacy transport.",
-					"description": "Port of the legacy eval server."
+					"markdownDescription": "Port of the legacy eval server (`extempore.transport`: `legacy`)."
 				}
 			}
 		},
