@@ -2,7 +2,7 @@
 	"name": "vscode-extempore",
 	"displayName": "Extempore",
 	"description": "Extempore language support for VS Code",
-	"version": "0.3.0",
+	"version": "0.4.0",
 	"publisher": "extemporelang",
 	"license": "MIT",
 	"homepage": "https://extemporelang.github.io/guides/editor-support/",
@@ -90,8 +90,8 @@
 				},
 				"extempore.executable": {
 					"type": "string",
-					"default": "extempore",
-					"markdownDescription": "The `extempore` binary: a name on `PATH`, or a path to it. It runs the language server and `Extempore: Start`."
+					"default": "",
+					"markdownDescription": "The `extempore` binary: a name on `PATH`, or a path to it. It runs the language server and `Extempore: Start`. Empty is the one `Extempore: Install Extempore` (or an install script) installed, then `extempore` on `PATH`."
 				},
 				"extempore.nrepl.host": {
 					"type": "string",
@@ -114,7 +114,7 @@
 				"extempore.sharedir": {
 					"type": "string",
 					"default": "",
-					"markdownDescription": "The extempore folder (the one with `libs` and `runtime`), where `Extempore: Start` runs extempore. Empty is `$EXTEMPORE_PATH`, then the workspace folder."
+					"markdownDescription": "The extempore folder (the one with `libs` and `runtime`), which `(sys:load \"libs/...\")` links are relative to, and where `Extempore: Start` runs extempore. Empty is `$EXTEMPORE_PATH`, then (for links) the share folder of the extempore being run, then the workspace folder."
 				},
 				"extempore.hostname": {
 					"type": "string",
@@ -175,6 +175,11 @@
 				"category": "Extempore"
 			},
 			{
+				"command": "extempore.install",
+				"title": "Install Extempore",
+				"category": "Extempore"
+			},
+			{
 				"command": "extempore.downloadBinary",
 				"title": "Download binary",
 				"category": "Extempore"
@@ -206,6 +211,10 @@
 				{
 					"command": "extempore.disconnect",
 					"when": "config.extempore.transport == legacy"
+				},
+				{
+					"command": "extempore.downloadBinary",
+					"when": "false"
 				}
 			]
 		},

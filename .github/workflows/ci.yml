@@ -28,8 +28,32 @@ jobs:
           gh release download -R digego/extempore -p "extempore-linux-x86_64-*.zip" \
             -D "$RUNNER_TEMP/release"
           unzip -q "$RUNNER_TEMP"/release/*.zip -d "$RUNNER_TEMP/release"
-          xtm=$(echo "$RUNNER_TEMP"/release/extempore-linux-x86_64-*/extempore)
+          # bin/extempore from v0.13.0, beside runtime/ before that
+          xtm=$(ls "$RUNNER_TEMP"/release/extempore-linux-x86_64-*/bin/extempore \
+            "$RUNNER_TEMP"/release/extempore-linux-x86_64-*/extempore 2>/dev/null | head -n 1)
           basename "$RUNNER_TEMP"/release/*.zip  # the release tested against
           echo "EXTEMPORE=$xtm" >> "$GITHUB_ENV"
       - run: xvfb-run -a pnpm test
       - run: pnpm package
+
+  # Extempore: Install Extempore's download and unpacking, on each platform,
+  # with the latest release (EXTEMPORE_TEST_INSTALL; the tests which need a
+  # running Extempore skip themselves).
+  install:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-15, windows-2025]
+    runs-on: ${{ matrix.os }}
+    env:
+      EXTEMPORE_TEST_INSTALL: "1"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
+      - run: pnpm install --frozen-lockfile
+      - if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -q && sudo apt-get install -yq libasound2t64
+          xvfb-run -a pnpm test
+      - if: runner.os != 'Linux'
+        run: pnpm test

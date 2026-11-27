@@ -1,7 +1,7 @@
 import * as path from "node:path";
 import * as vscode from "vscode";
 
-import { downloadExtempore } from "./download";
+import { installedBinDir, installedExecutable, installExtempore, shareDirOf } from "./install";
 import { LegacyTransport } from "./legacy";
 import { type EvalResult, Server } from "./server";
 import { Results } from "./results";
@@ -18,10 +18,16 @@ function config() {
   return vscode.workspace.getConfiguration("extempore");
 }
 
+// The extempore to run: the setting, then the one Extempore: Install Extempore
+// (or an install script) installed, then whichever is on PATH.
+function executable(): string {
+  return config().get<string>("executable") || installedExecutable() || "extempore";
+}
+
 async function setUp(): Promise<void> {
   const useLegacy = config().get<string>("transport") === "legacy";
   legacy = useLegacy ? new LegacyTransport(results.output) : undefined;
-  server = new Server(config().get<string>("executable") || "extempore", results);
+  server = new Server(executable(), results);
   await server.start(useLegacy);
 }
 
@@ -33,12 +39,24 @@ async function tearDown(): Promise<void> {
   results.clearAll();
 }
 
-// The extempore folder: the setting, then $EXTEMPORE_PATH, then the first
-// workspace folder.
+// Where Extempore: Start runs extempore: the sharedir setting, then
+// $EXTEMPORE_PATH, then the first workspace folder.
+function startDir(): string | undefined {
+  return (
+    config().get<string>("sharedir") ||
+    process.env["EXTEMPORE_PATH"] ||
+    vscode.workspace.workspaceFolders?.[0]?.uri.fsPath
+  );
+}
+
+// The folder with libs/ and runtime/, which (sys:load "libs/...") paths are
+// relative to: the sharedir setting, then $EXTEMPORE_PATH, then the share
+// folder of the extempore being run, then the first workspace folder.
 function sharedir(): string | undefined {
   return (
     config().get<string>("sharedir") ||
     process.env["EXTEMPORE_PATH"] ||
+    shareDirOf(executable()) ||
     vscode.workspace.workspaceFolders?.[0]?.uri.fsPath
   );
 }
@@ -47,11 +65,48 @@ function startInTerminal(): void {
   terminal?.dispose();
   terminal = vscode.window.createTerminal({
     name: "Extempore",
-    cwd: sharedir(),
-    shellPath: config().get<string>("executable") || "extempore",
+    cwd: startDir(),
+    shellPath: executable(),
     shellArgs: [],
   });
   terminal.show(true);
+}
+
+// VS Code's terminals get the installed extempore on PATH.
+function putInstalledOnPath(env: vscode.GlobalEnvironmentVariableCollection): void {
+  env.clear();
+  if (installedExecutable()) {
+    env.description = "puts the extempore which Extempore: Install Extempore installed on PATH";
+    env.prepend("PATH", installedBinDir() + path.delimiter);
+  }
+}
+
+// After an install: use it, and offer to drop an extempore.executable setting
+// which names some other extempore.
+async function installed(exe: string | undefined, context: vscode.ExtensionContext): Promise<void> {
+  if (!exe) {
+    return;
+  }
+  putInstalledOnPath(context.environmentVariableCollection);
+  const setting = config().inspect<string>("executable")?.globalValue;
+  if (setting && setting !== exe) {
+    const choice = await vscode.window.showInformationMessage(
+      `Extempore is installed. Your extempore.executable setting names another one (${setting}): use the new one instead?`,
+      "Use the new one",
+      "Keep the setting",
+    );
+    if (choice === "Use the new one") {
+      // the configuration listener restarts the language server
+      await config().update("executable", undefined, vscode.ConfigurationTarget.Global);
+      await config().update("sharedir", undefined, vscode.ConfigurationTarget.Global);
+      return;
+    }
+  }
+  await tearDown();
+  await setUp();
+  void vscode.window.showInformationMessage(
+    "Extempore is installed: run Extempore: Start to start it. VS Code's terminals have the extempore command.",
+  );
 }
 
 function withEditor(run: (editor: vscode.TextEditor) => unknown): () => unknown {
@@ -134,7 +189,10 @@ export async function activate(context: vscode.ExtensionContext): Promise<Api> {
   );
   command("extempore.connectHostPort", () => (legacy ? connectHostPort() : legacyOnly()));
   command("extempore.disconnect", () => (legacy ? legacy.disconnect() : legacyOnly()));
-  command("extempore.downloadBinary", downloadExtempore);
+  const install = async () => installed(await installExtempore(), context);
+  command("extempore.install", install);
+  // the command's name before 0.4.0, for keybindings which name it
+  command("extempore.downloadBinary", install);
   command("extempore.help", () =>
     vscode.env.openExternal(vscode.Uri.parse("https://extemporelang.github.io/")),
   );
@@ -153,6 +211,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<Api> {
       }
     }),
   );
+  putInstalledOnPath(context.environmentVariableCollection);
   await setUp();
   return { onDidEvaluate: results.onDidEvaluate };
 }

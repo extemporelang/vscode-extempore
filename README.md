@@ -6,14 +6,14 @@ and an outline through extempore's language server.
 
 ## Setup
 
-1. install [Extempore](https://extemporelang.github.io/overview/quickstart/)
-   v0.12.0 or later, or run `Extempore: Download binary` from the Command
-   Palette
-2. make sure VS Code can find the `extempore` binary: either it's on your
-   `PATH`, or `extempore.executable` is set to its path (the download command
-   sets this for you)
-3. start Extempore with `Extempore: Start` (or however you like)
-4. open an `.xtm` file and evaluate code with <kbd>ctrl</kbd>+<kbd>enter</kbd>
+1. run `Extempore: Install Extempore` from the Command Palette, which installs
+   the latest release where the
+   [install scripts](https://extemporelang.github.io/overview/quickstart/) do;
+   the extension finds an Extempore installed either way, and VS Code's
+   terminals have it on `PATH`. For another Extempore (v0.12.0 or later), put it
+   on your `PATH` or set `extempore.executable` to it
+2. start Extempore with `Extempore: Start` (or however you like)
+3. open an `.xtm` file and evaluate code with <kbd>ctrl</kbd>+<kbd>enter</kbd>
    (<kbd>cmd</kbd>+<kbd>enter</kbd> on macOS)
 
 The extension runs `extempore lsp`, which connects to the running Extempore's
@@ -30,7 +30,7 @@ server the same way `extempore send` does: `$EXTEMPORE_NREPL_PORT`, then a
 | `Extempore: Interrupt evaluation`                 | <kbd>ctrl</kbd>/<kbd>cmd</kbd>+<kbd>alt</kbd>+<kbd>c</kbd>       |
 | `Extempore: Start`                                |                                                                  |
 | `Extempore: Restart language server`              |                                                                  |
-| `Extempore: Download binary`                      |                                                                  |
+| `Extempore: Install Extempore`                    |                                                                  |
 
 Each result shows at the end of its form until you next edit the file. Errors
 are also marked on their form until you edit that form or it evaluates cleanly,
@@ -41,7 +41,7 @@ and everything the code prints goes to the "Extempore" output panel. Formatting
 
 | setting                   | default     | meaning                                                                                     |
 | ------------------------- | ----------- | ------------------------------------------------------------------------------------------- |
-| `extempore.executable`    | `extempore` | the `extempore` binary                                                                      |
+| `extempore.executable`    |             | the `extempore` binary (else the installed one, then `extempore` on `PATH`)                 |
 | `extempore.sharedir`      |             | where `Extempore: Start` runs extempore (else `$EXTEMPORE_PATH`, then the workspace folder) |
 | `extempore.nrepl.host`    | `127.0.0.1` | the nREPL server's host                                                                     |
 | `extempore.nrepl.port`    |             | the nREPL server's port, if not found as above                                              |
