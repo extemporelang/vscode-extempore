@@ -34,9 +34,8 @@ server the same way `extempore send` does: `$EXTEMPORE_NREPL_PORT`, then a
 
 Each result shows at the end of its form until you next edit the file. Errors
 are also marked on their form until you edit that form or it evaluates cleanly,
-and everything the code prints goes to the
-"Extempore" output panel. Formatting (`Format Document`, or
-`editor.formatOnSave`) uses `extempore fmt`'s rules.
+and everything the code prints goes to the "Extempore" output panel. Formatting
+(`Format Document`, or `editor.formatOnSave`) uses `extempore fmt`'s rules.
 
 ## Settings
 
@@ -58,10 +57,9 @@ runs.
 Extempore releases before the nREPL server only accept code over a raw socket on
 port 7099. Set `extempore.transport` to `legacy`, start Extempore, then run
 `Extempore: Connect (legacy)` (or `Connect to host:port (legacy)`). Each
-evaluated form's value shows in the status bar and the "Extempore" output
-panel. `extempore.hostname` and
-`extempore.port` set where it connects. Formatting and the outline still work if
-your `extempore` binary has `extempore lsp`.
+evaluated form's value shows in the status bar and the "Extempore" output panel.
+`extempore.hostname` and `extempore.port` set where it connects. Formatting and
+the outline still work if your `extempore` binary has `extempore lsp`.
 
 ## Development
 

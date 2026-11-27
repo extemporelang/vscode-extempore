@@ -17,5 +17,5 @@
 - with the legacy transport, each reply also goes to the Extempore output panel,
   and replies no longer run together
 - syntax highlighting now covers Extempore's syntax, including xtlang types
-- in an untrusted workspace, `extempore.executable` and `extempore.sharedir` come
-  from user settings only
+- in an untrusted workspace, `extempore.executable` and `extempore.sharedir`
+  come from user settings only
