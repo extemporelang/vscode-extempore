@@ -66,7 +66,10 @@ function startExtempore(): Promise<ChildProcess> {
   );
   return new Promise((resolve, reject) => {
     let console = "";
-    const timer = setTimeout(() => reject(new Error(`extempore never started:\n${console}`)), 60000);
+    const timer = setTimeout(
+      () => reject(new Error(`extempore never started:\n${console}`)),
+      60000,
+    );
     const read = (chunk: Buffer) => {
       console += chunk.toString();
       if (console.includes("nREPL server started")) {
@@ -125,5 +128,34 @@ suite("evaluation", function () {
   test("an error", async () => {
     const result = await evalAt(5, 1);
     assert.match(result.error?.message ?? "", /car argument, 5, is an integer/);
+  });
+
+  test("an error's diagnostic stays until its form is edited", async () => {
+    await evalAt(5, 1);
+    const document = vscode.window.activeTextEditor!.document;
+    const lines = async (want: number[]) => {
+      for (let i = 0; i < 50; i++) {
+        const got = vscode.languages.getDiagnostics(document.uri).map((d) => d.range.start.line);
+        if (JSON.stringify(got) === JSON.stringify(want)) {
+          return;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+      assert.fail(`diagnostics never on lines ${JSON.stringify(want)}`);
+    };
+    const replace = async (line: number, from: number, to: number, text: string) => {
+      const edit = new vscode.WorkspaceEdit();
+      edit.replace(document.uri, new vscode.Range(line, from, line, to), text);
+      await vscode.workspace.applyEdit(edit);
+    };
+    try {
+      await lines([5]);
+      await replace(0, 15, 17, "41"); // another form
+      await lines([5]);
+      await replace(5, 5, 6, "'(5)"); // the form which failed
+      await lines([]);
+    } finally {
+      await vscode.commands.executeCommand("workbench.action.files.revert");
+    }
   });
 });

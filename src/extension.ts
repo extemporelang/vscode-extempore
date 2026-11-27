@@ -20,7 +20,7 @@ function config() {
 
 async function setUp(): Promise<void> {
   const useLegacy = config().get<string>("transport") === "legacy";
-  legacy = useLegacy ? new LegacyTransport() : undefined;
+  legacy = useLegacy ? new LegacyTransport(results.output) : undefined;
   server = new Server(config().get<string>("executable") || "extempore", results);
   await server.start(useLegacy);
 }
@@ -30,6 +30,7 @@ async function tearDown(): Promise<void> {
   legacy = undefined;
   await server?.stop();
   server = undefined;
+  results.clearAll();
 }
 
 // The extempore folder: the setting, then $EXTEMPORE_PATH, then the first

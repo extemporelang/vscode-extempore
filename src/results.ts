@@ -29,6 +29,21 @@ export function summary(result: EvalResult): string {
   return result.out.trim().split("\n")[0] ?? "";
 }
 
+// The line a result for range goes on: its last with code on it, so a
+// selection of whole lines, which ends at the start of the next, isn't
+// answered beside the form after it.
+export function resultLine(lines: readonly string[], range: vscode.Range): number {
+  let line = range.end.line;
+  while (line > range.start.line) {
+    const text = line === range.end.line ? lines[line]?.slice(0, range.end.character) : lines[line];
+    if (text?.trim()) {
+      break;
+    }
+    line--;
+  }
+  return line;
+}
+
 export class Results implements vscode.Disposable {
   readonly output = vscode.window.createOutputChannel("Extempore");
   private readonly evaluated = new vscode.EventEmitter<EvalResult>();
@@ -78,7 +93,7 @@ export class Results implements vscode.Disposable {
     const key = document.uri.toString();
     const shown = this.shown.get(key) ?? { value: [], error: [] };
     // a newer result for the same line replaces the older
-    const line = range.end.line;
+    const line = resultLine(document.getText().split(/\r?\n/), range);
     shown.value = shown.value.filter((d) => d.range.start.line !== line);
     shown.error = shown.error.filter((d) => d.range.start.line !== line);
     const end = document.lineAt(line).range.end;
@@ -91,6 +106,11 @@ export class Results implements vscode.Disposable {
     };
     (result.error || result.interrupted ? shown.error : shown.value).push(decoration);
     this.shown.set(key, shown);
+    this.redraw();
+  }
+
+  clearAll(): void {
+    this.shown.clear();
     this.redraw();
   }
 

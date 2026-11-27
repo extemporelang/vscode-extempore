@@ -6,5 +6,5 @@
     "outDir": "../out",
     "types": ["node", "mocha"]
   },
-  "include": [".", "../src/forms.ts"]
+  "include": ["."]
 }

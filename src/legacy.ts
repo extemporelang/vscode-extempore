@@ -1,5 +1,5 @@
 // The legacy transport: code sent over a raw socket to extempore's eval server
-// (port 7099), which answers each form with its value as a line of text.
+// (port 7099), which answers each form with its value as text, ended by a NUL.
 
 import { Socket } from "node:net";
 import * as vscode from "vscode";
@@ -7,15 +7,35 @@ import * as vscode from "vscode";
 import { topLevelForms, topLevelFormAt } from "./forms";
 import { blink } from "./results";
 
+// The complete replies in buffered, and what is left of an unfinished one.
+export function splitReplies(buffered: string): { replies: string[]; rest: string } {
+  const parts = buffered.split("\0");
+  const rest = parts.pop() ?? "";
+  return { replies: parts.map((reply) => reply.trim()).filter(Boolean), rest };
+}
+
 export class LegacyTransport implements vscode.Disposable {
   private socket: Socket | undefined;
+
+  constructor(private readonly output: vscode.OutputChannel) {}
 
   connect(hostname: string, port: number): void {
     this.socket?.destroy();
     const socket = new Socket();
+    let buffered = "";
     socket.setEncoding("utf8");
     socket.setKeepAlive(true);
-    socket.on("data", (data) => vscode.window.setStatusBarMessage(data.toString().trim(), 5000));
+    socket.on("data", (data) => {
+      const { replies, rest } = splitReplies(buffered + data.toString());
+      buffered = rest;
+      for (const reply of replies) {
+        this.output.appendLine(reply);
+      }
+      const last = replies.at(-1);
+      if (last) {
+        vscode.window.setStatusBarMessage(`Extempore: ${last}`, 5000);
+      }
+    });
     socket.on("close", () => {
       vscode.window.setStatusBarMessage(
         `Extempore: connection to ${hostname}:${port} closed`,
