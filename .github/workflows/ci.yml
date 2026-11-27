@@ -4,14 +4,29 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
+env:
+  # the extempore release the tests which evaluate run against
+  EXTEMPORE_RELEASE: v0.12.0
+
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
       - uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
-      # Without $EXTEMPORE the tests which need an extempore are skipped.
+      - name: Extempore
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          sudo apt-get update -q && sudo apt-get install -yq libasound2t64
+          gh release download "$EXTEMPORE_RELEASE" -R digego/extempore \
+            -p "extempore-linux-x86_64-$EXTEMPORE_RELEASE.zip" -D "$RUNNER_TEMP"
+          unzip -q "$RUNNER_TEMP/extempore-linux-x86_64-$EXTEMPORE_RELEASE.zip" -d "$RUNNER_TEMP"
+          echo "EXTEMPORE=$RUNNER_TEMP/extempore-linux-x86_64-$EXTEMPORE_RELEASE/extempore" >> "$GITHUB_ENV"
       - run: xvfb-run -a pnpm test
       - run: pnpm package
